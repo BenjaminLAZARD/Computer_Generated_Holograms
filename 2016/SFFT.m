@@ -1,14 +1,15 @@
-function [ TF ] = SFFT( Img, Lo, L, lambda, zo)
+function [ Uf ] = SFFT( Img, Lo, lambda, zo)
 %S-FFT
 %* *Img* est la matrice 2D qui correspond à l'image. Les coefs de la matrice
 %correspondent à l'intensité lumineuse sur  1 octet.(pasde couleur !)
 %* *Lo* est la taille désirée de Img en m (indépendamment du nb de pixels)
 
 % Toutes les unités sont en m (U.S.I)
-
+tic;
 k=2*pi/lambda; % vecteur d'onde
-
 % On fait un 0-padding de l'image liée à la matrice Img. Le but est juste d'en faire un carré. 
+[M,N] = size(Img);
+Img=[Img,zeros(M,1)];
 [M,N] = size(Img);
 Max=max(M,N);
 Z1 = zeros(Max, (Max-N)/2);
@@ -17,7 +18,8 @@ Img_padd = [Z1,[Z2;Img;Z2],Z1]; %[;] fait une concaténation sur les lignes. [,] 
 
 %zmin est la distance minimale entre le CCD et l'image reconstituée pour que lthéorème de Shannon soit vérifié. 
 %Le calcul est optimisé par rapport à lambda et à l'échantillonage (nb de pixels maximal du CCD), (p.85 du livre en Anglais)
-zmin= Lo^2/(Max*lambda)
+zmin= Lo^2/(Max*lambda);
+fprintf('La valeur de z doit être supérieure à %f \n', zmin);
 
 Uo = double(Img_padd);%Uo = Champ des amplitudes complexes liées à Img_padd, la précision de chaque coef passe de 1o à un double
 
@@ -44,6 +46,7 @@ tmp= Uo.*propag;
 Uf=fft2(tmp,Max,Max);
 Uf=fftshift(Uf);
 L=lambda*abs(zo)*N/Lo;
+fprintf('normalement L=Lo cf. livre qui doit être calculé en fonction du n : Lo=L=(zo*lambda*largeurdelimage)^0.5\n');
 x= -Lo/2 + Lo*n/Max; % coordonées en x comprises entre -Lo/2 et Lo/2 par incréments d'1 pasX sur l'image restituée.
 y= x;
 [xx,yy]=meshgrid(x,y);
@@ -58,6 +61,6 @@ axis tight;
 ylabel('pixels');
 xlabel(['Côté de l''image d''origine', num2str(L),'m']);
 title(['Champ des amplitudes de l''image dffraactée après calcul par S-FFT sur la distance',num2str(zo),' m']);
-
+toc;
 end
 
