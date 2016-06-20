@@ -9,7 +9,12 @@ tic;
 k=2*pi/lambda; % vecteur d'onde
 % On fait un 0-padding de l'image liée à la matrice Img. Le but est juste d'en faire un carré. 
 [M,N] = size(Img);
-Img=[Img,zeros(M,1)];
+if mod(M,2)==1
+    Img=[Img,zeros(M,1)];
+end
+if mod(N,2)==1
+    Img=[Img;zeros(N,1)];
+end
 [M,N] = size(Img);
 Max=max(M,N);
 Z1 = zeros(Max, (Max-N)/2);
