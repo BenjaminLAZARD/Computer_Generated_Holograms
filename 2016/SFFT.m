@@ -1,0 +1,63 @@
+function [ TF ] = SFFT( Img, Lo, L, lambda, zo)
+%S-FFT
+%* *Img* est la matrice 2D qui correspond à l'image. Les coefs de la matrice
+%correspondent à l'intensité lumineuse sur  1 octet.(pasde couleur !)
+%* *Lo* est la taille désirée de Img en m (indépendamment du nb de pixels)
+
+% Toutes les unités sont en m (U.S.I)
+
+k=2*pi/lambda; % vecteur d'onde
+
+% On fait un 0-padding de l'image liée à la matrice Img. Le but est juste d'en faire un carré. 
+[M,N] = size(Img);
+Max=max(M,N);
+Z1 = zeros(Max, (Max-N)/2);
+Z2 = zeros((Max-M)/2,N);
+Img_padd = [Z1,[Z2;Img;Z2],Z1]; %[;] fait une concaténation sur les lignes. [,] fait une concaténation sur les colonnes.
+
+%zmin est la distance minimale entre le CCD et l'image reconstituée pour que lthéorème de Shannon soit vérifié. 
+%Le calcul est optimisé par rapport à lambda et à l'échantillonage (nb de pixels maximal du CCD), (p.85 du livre en Anglais)
+zmin= Lo^2/(Max*lambda)
+
+Uo = double(Img_padd);%Uo = Champ des amplitudes complexes liées à Img_padd, la précision de chaque coef passe de 1o à un double
+
+%affichage de l'image avec padding
+figure(1), imagesc(Img_padd), colormap(gray); 
+axis equal;
+axis tight;
+ylabel('pixels');
+xlabel(['Côté de l''image d''origine', num2str(Lo),'m']);
+title('Champ des amplitudes de l''image originale');
+
+%%%%%%%%%%%%%%%%%%%%%
+%Calcul de la S-FFT
+n=0:(Max-1); %vecteur avec des entiers compris entre 1 et Max correspondant aux pixels sur l'axe X
+%pasX = pasY = Lo/Max = taille de chaque pixel.
+x= -Lo/2 + Lo*n/Max; % coordonées en x comprises entre -Lo/2 et Lo/2 par incréments d'1 pasX sur l'image d'origine
+y=x;
+%Soit une fonction z= f(x,y) (où z, x, y sont des réels). On veut éxécuter ce calcul pour une série de points répartis dans le plan (x,y) et obtenir 
+%les résultats comme une matrice dont le coefficient [i,j] est z =f(Xi,Yj).
+%Pour cela, il suffit de créer une meshgrid [xx,yy]=meshgrid(-Max:1:Max,-Max:1:Max), et d'écrire zz= f(xx,yy).
+[xx,yy]=meshgrid(x,y);
+propag= exp(1i*k/2/zo*(xx.^2 +yy.^2));% le.^2 fait le carré pour chaque coef et non pas la multiplication de matrices xx*xx.
+tmp= Uo.*propag;
+Uf=fft2(tmp,Max,Max);
+Uf=fftshift(Uf);
+L=lambda*abs(zo)*N/Lo;
+x= -Lo/2 + Lo*n/Max; % coordonées en x comprises entre -Lo/2 et Lo/2 par incréments d'1 pasX sur l'image restituée.
+y= x;
+[xx,yy]=meshgrid(x,y);
+phase=exp(1i*k*zo)/(1i*lambda*zo)*exp(1i*k/2/zo*(xx.^2+yy.^2));
+Uf=Uf.*phase;
+
+%affichage de l'image après propagation
+Intensite=abs(Uf);
+figure(2), imagesc(Intensite), colormap(gray); 
+axis equal;
+axis tight;
+ylabel('pixels');
+xlabel(['Côté de l''image d''origine', num2str(L),'m']);
+title(['Champ des amplitudes de l''image dffraactée après calcul par S-FFT sur la distance',num2str(zo),' m']);
+
+end
+
