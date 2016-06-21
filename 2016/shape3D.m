@@ -1,4 +1,4 @@
-function [ object ] = shape3D( shape, N, padding, pas_pixel )
+function [ object ] = shape3D( shape, N, padding, pas_pixel, expression )
 %Sert à générer un objet 3D comme une matrice de points. Cela sert dans HolocubeV15 pour calculer les amplitudes complexes du plan objet.
 %* *shape* soit _'cube'_, soit  _'sphere'_, soit'Z= f(X,Y)
 %* *N* la matrice 3Dobject est de taille N^3. N doit être pair.
@@ -39,20 +39,52 @@ switch shape %le switch en matlab ne marche pas comme le switch en C. Notamment 
             object(m+last+6*dim_side2,:) = [padding+1, m+padding+1, N-padding];%coordonnées en pixels des points de l'arrête 10 (cf. schéma correspondant dans le rapport)
             object(m+last+7*dim_side2,:) = [N-padding, m+padding+1, N-padding];%coordonnées en pixels des points de l'arrête 11 (cf. schéma correspondant dans le rapport)
         end
+        figure(5),scatter3(object(:,1), object(:,2), object(:,3));% On trace le cube à partir des coordonnées ainsi trouvées.
     case 'sphere'
         object = zeros(N^3,3);
-        [X, Y] = meshgrid((-N/2 : 1 : N/2-1), (-N/2 : 1 : N/2-1));
-        Z1= (X.^2 +Y.^2).^(1/2);
-        Z2= -(X.^2 +Y.^2).^(1/2);
-        for k = 1:N
-           % object(m:
+        % On place l'origine de la fonction au centre du cube de côté N
+        xx = (-N/2+1 : 1 : N/2);
+        yy = (-N/2+1 : 1 : N/2);
+        [X, Y] = meshgrid(xx, yy);
+        R=N/2-padding;% Rayon de la sphère dont on veut générer les coordonnées.
+        Z= ( R^2    -   (X.^2  + Y.^2) ).^(1/2); %Equation de la sphère : Z(k,l) est la valeur en Z  pour (x=k, y=l) qui permet de tracer la demi-sphère (Z>0).
+        m=1;
+        for k=xx+N/2
+            for l=yy+N/2
+                    coef = Z(k,l);
+                    if imag(coef)==0
+                        object(m,:)=(pas_pixel*[k, l, coef + N/2]);%On remet l'origine en haut à gauche par l'ajout du N/2 aux coordonnées.
+                        object(m+1,:)=(pas_pixel*[k, l, -coef + N/2]);%On remet l'origine en haut à gauche par l'ajout du N/2 aux coordonnées.
+                        m = m+2;
+                    %else
+                    %    Z(k,l)=0;
+                    end
+            end
         end
+     %figure(4),surf(X,Y,Z);%trace la surface correspondant à la demi-sphère.
+     figure(5),scatter3(object(:,1), object(:,2), object(:,3));% On trace la sphere à partir des coordonnées ainsi trouvées.
     case 'cylinder'
+        
     otherwise
-        [X, Y] = meshgrid((-N/2 : 1 : N/2-1), (-N/2 : 1 : N/2-1));
-        Z1= (X.^2 +Y.^2).^(1/2);
-        Z2= -(X.^2 +Y.^2).^(1/2);
-end
+        object = zeros(N^3,3);
+        xx = pas_pixel*(-N/2 : 1 : N/2-1);
+        yy = pas_pixel*(-N/2 : 1 : N/2-1);
+        [X, Y] = meshgrid(xx, yy);%lire le commentaire ci-dessous.
+        Z=eval(expression);%dans "expression" rentrée en paramètre de la fonction shape3D doivent apparaître X et Y (c'est pour ça qu'on a un warning au-dessus)
+        m=1;
+        for k=xx+N/2
+            for l=yy+N/2
+                    coef = Z(k,l);
+                    if imag(coef)==0
+                        object(m,:)=([k, l, coef + N/2]);%On remet l'origine en haut à gauche par l'ajout du N/2 aux coordonnées.
+                        m = m+1;
+                    else
+                        Z(k,l)=0;
+                    end
+            end
+        end
+     %figure(4),surf(X,Y,Z);
+     figure(5),scatter3(object(:,1), object(:,2), object(:,3));% On trace la sphere à partir des coordonnées ainsi trouvées.
 
 end
 
