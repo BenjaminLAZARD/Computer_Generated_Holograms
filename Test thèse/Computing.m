@@ -2,8 +2,8 @@ function [ film ] = Computing(objectpoints)
 %UNTITLED4 Summary of this function goes here
 %   Detailed explanation goes here
 
-sampling = 0.0254/1200;
-wavelength = 630e-9;
+sampling = 0.0254/200;
+wavelength = 633e-9;
 
 dimensions = 1;
 range=dimensions*0.0254/2;

@@ -51,15 +51,15 @@ DAX=abs(XY(1,1)-XY(2,1));
 DAY=abs(XY(1,1)-XY(2,1));
 
 %%%%Reconstruction à grandissement variable 
-Gyi = min(L/Dax,L/Day);
-zi = -Gy*zi ;
+Gyi = min(L/DAX,L/DAY);
+zi = -Gy*zo ;
 zc =1/(1/zo+1/zi);
 %% calcul de l'onde sphérique 
 sph = exp(1i*k/2/zc*(xx.^2+yy.^2));
 
 %%illuminer l'hologramme par une onde spérique 
 f=Ih.*sph %%multiplier le spectre de l'hologramme par l'onde spférique 
-TFUF = fftshift();
+TFUF = fftshift(fft2(f,N,N));
 (fft2(f,N,N));
 %%% éspace de Fourrier 
 du = 1/pix/N;
@@ -72,16 +72,16 @@ fy=[-fey/2:fey/N:fey/2-fey/N];
 
 
 %%%%fréquences spaciales de l'onde de référence 
-Ur = xc/h/abs(zo);
-Vr = yc/h/abs(zo);
+Ur = xc/lambda/abs(zo);
+Vr = yc/lambda/abs(zo);
 
 %%% Fonction de transfert 
-Du =abs (Gy*DAX/h/zi);
-Dv =abs (Gy*DAy/h/zi);
+Du =abs (Gy*DAX/lambda/zi);
+Dv =abs (Gy*DAY/lambda/zi);
 
 Gf = zeros(size(f));
 Ir = find(abs(FX-Ur)<Du/2 & abs(FY-Vr)<Dv/2);
-Gf(Ir)= exp(-i1*k*zi*sqrt(1-(lambda*(FX(Ir)-Ur)).^2-(lambda*(FY(Ir)-Vr)).^2));
+Gf(Ir)= exp(-1i*k*zi*sqrt(1-(lambda*(FX(Ir)-Ur)).^2-(lambda*(FY(Ir)-Vr)).^2));
 
 %%%Reconstruction 
 if sign(zo) == -1 

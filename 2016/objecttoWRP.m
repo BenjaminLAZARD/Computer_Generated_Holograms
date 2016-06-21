@@ -21,6 +21,7 @@ for xWRP = 1:tailleWRP
 end
    
 imshow(real(WRP));
+imwrite(real(WRP), 'outWRP.png');
 
 end
 
