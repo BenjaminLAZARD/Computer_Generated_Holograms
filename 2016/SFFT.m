@@ -1,10 +1,10 @@
 function [ Uf ] = SFFT( Img, Lo, lambda, zo)
 %S-FFT
-%* *Img* est la matrice 2D qui correspond à l'image. Les coefs de la matrice
-%correspondent à l'intensité lumineuse sur  1 octet.(pasde couleur !)
-%* *Lo* est la taille désirée de Img en m (indépendamment du nb de pixels)
+%* *Img* est la matrice 2D qui correspond à l'image. Les coeffs de la matrice
+%correspondent à l'intensité lumineuse sur  1 octet.(pas de couleurs !)
+%* *Lo* est la taille désirée de Img en metres (indépendamment du nb de pixels)
 
-% Toutes les unités sont en m (U.S.I)
+% Toutes les unités sont en metres (U.S.I)
 tic;
 k=2*pi/lambda; % vecteur d'onde
 % On fait un 0-padding de l'image liée à la matrice Img. Le but est juste d'en faire un carré. 
@@ -21,7 +21,7 @@ Z1 = zeros(Max, (Max-N)/2);
 Z2 = zeros((Max-M)/2,N);
 Img_padd = [Z1,[Z2;Img;Z2],Z1]; %[;] fait une concaténation sur les lignes. [,] fait une concaténation sur les colonnes.
 
-%zmin est la distance minimale entre le CCD et l'image reconstituée pour que lthéorème de Shannon soit vérifié. 
+%zmin est la distance minimale entre le CCD et l'image reconstituée pour que le théorème de Shannon soit vérifié. 
 %Le calcul est optimisé par rapport à lambda et à l'échantillonage (nb de pixels maximal du CCD), (p.85 du livre en Anglais)
 zmin= Lo^2/(Max*lambda);
 fprintf('La valeur de z doit être supérieure à %f \n', zmin);
@@ -33,16 +33,16 @@ figure(1), imagesc(Img_padd), colormap(gray);
 axis equal;
 axis tight;
 ylabel('pixels');
-xlabel(['Côté de l''image d''origine', num2str(Lo),'m']);
+xlabel(['Côté de l''image d''origine = ', num2str(Lo),'m']);
 title('Champ des amplitudes de l''image originale');
 
 %%%%%%%%%%%%%%%%%%%%%
 %Calcul de la S-FFT
 n=0:(Max-1); %vecteur avec des entiers compris entre 1 et Max correspondant aux pixels sur l'axe X
 %pasX = pasY = Lo/Max = taille de chaque pixel.
-x= -Lo/2 + Lo*n/Max; % coordonées en x comprises entre -Lo/2 et Lo/2 par incréments d'1 pasX sur l'image d'origine
+x= -Lo/2 + Lo*n/Max; % coordonnées en x comprises entre -Lo/2 et Lo/2 par incréments d'1 pasX sur l'image d'origine
 y=x;
-%Soit une fonction z= f(x,y) (où z, x, y sont des réels). On veut éxécuter ce calcul pour une série de points répartis dans le plan (x,y) et obtenir 
+%Soit une fonction z= f(x,y) (où z, x, y sont des réels). On veut exécuter ce calcul pour une série de points répartis dans le plan (x,y) et obtenir 
 %les résultats comme une matrice dont le coefficient [i,j] est z =f(Xi,Yj).
 %Pour cela, il suffit de créer une meshgrid [xx,yy]=meshgrid(-Max:1:Max,-Max:1:Max), et d'écrire zz= f(xx,yy).
 [xx,yy]=meshgrid(x,y);
@@ -51,8 +51,8 @@ tmp= Uo.*propag;
 Uf=fft2(tmp,Max,Max);
 Uf=fftshift(Uf);
 L=lambda*abs(zo)*N/Lo;
-fprintf('normalement L=Lo cf. livre qui doit être calculé en fonction du n : Lo=L=(zo*lambda*largeurdelimage)^0.5\n');
-x= -Lo/2 + Lo*n/Max; % coordonées en x comprises entre -Lo/2 et Lo/2 par incréments d'1 pasX sur l'image restituée.
+fprintf('Normalement L=Lo cf. livre qui doit être calculé en fonction du n : Lo=L=(zo*lambda*largeurdelimage)^0.5\n');
+x= -Lo/2 + Lo*n/Max; % coordonnées en x comprises entre -Lo/2 et Lo/2 par incréments d'1 pasX sur l'image restituée.
 y= x;
 [xx,yy]=meshgrid(x,y);
 phase=exp(1i*k*zo)/(1i*lambda*zo)*exp(1i*k/2/zo*(xx.^2+yy.^2));
@@ -64,8 +64,8 @@ figure(2), imagesc(Intensite), colormap(gray);
 axis equal;
 axis tight;
 ylabel('pixels');
-xlabel(['Côté de l''image d''origine', num2str(L),'m']);
-title(['Champ des amplitudes de l''image dffraactée après calcul par S-FFT sur la distance',num2str(zo),' m']);
+xlabel(['Côté de l''image d''origine = ', num2str(L),'m']);
+title(['Champ des amplitudes de l''image diffractée après calcul par S-FFT sur la distance z = ',num2str(zo),' m']);
 toc;
 end
 
