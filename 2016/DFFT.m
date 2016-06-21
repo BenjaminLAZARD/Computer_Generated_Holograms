@@ -1,5 +1,5 @@
 function [ Uf ] = DFFT( Img, Lo, lambda, zo)
-%S-FFT
+%D-FFT (utilisée quand la distance de diffraction est courte). Cet algorithme est plus rapide que la S-FFT, et prend tout l'écran pour de petites distances.
 %* *Img* est la matrice 2D qui correspond à l'image. Les coefs de la matrice
 %correspondent à l'intensité lumineuse sur  1 octet.(pasde couleur !)
 %* *Lo* est la taille désirée de Img en m (indépendamment du nb de pixels)
@@ -9,6 +9,8 @@ tic;
 k=2*pi/lambda; % vecteur d'onde
 
 % On fait un 0-padding de l'image liée à la matrice Img. Le but est juste d'en faire un carré. 
+%Pour cela on commence par s'assurer que que les nombres de pixels en largeur
+%et hauteur sont pairs.
 [M,N] = size(Img);
 if mod(M,2)==1
     Img=[Img,zeros(M,1)];
@@ -16,14 +18,15 @@ end
 if mod(N,2)==1
     Img=[Img;zeros(N,1)];
 end
+%Ensuite on fait le padding proprement dit.
 [M,N] = size(Img);
 Max=max(M,N);
 Z1 = zeros(Max, (Max-N)/2);
 Z2 = zeros((Max-M)/2,N);
 Img_padd = [Z1,[Z2;Img;Z2],Z1]; %[;] fait une concaténation sur les lignes. [,] fait une concaténation sur les colonnes.
 
-%zmin est la distance minimale entre le CCD et l'image reconstituée pour que lthéorème de Shannon soit vérifié. 
-%Le calcul est optimisé par rapport à lambda et à l'échantillonage (nb de pixels maximal du CCD), (p.85 du livre en Anglais)
+%zmax est la distance minimale entre le CCD et l'image reconstituée pour que le théorème de Shannon soit vérifié. 
+%Le calcul est optimisé par rapport à lambda et à l'échantillonage (nb de pixels maximal du CCD), (p.89 du livre en Anglais)
 zmax= Lo^2/(Max*lambda);
 fprintf('La valeur de z doit être inférieure à %f \n', zmax);
 

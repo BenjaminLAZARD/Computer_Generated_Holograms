@@ -1,5 +1,5 @@
 function [ Uf ] = SFFT( Img, Lo, lambda, zo)
-%S-FFT
+%S-FFT (utilisé quand la distance de diffraction est grande). Cet algorithme donne une image reconstruite qui ne prend pas tous l'écran.
 %* *Img* est la matrice 2D qui correspond à l'image. Les coefs de la matrice
 %correspondent à l'intensité lumineuse sur  1 octet.(pasde couleur !)
 %* *Lo* est la taille désirée de Img en m (indépendamment du nb de pixels)
