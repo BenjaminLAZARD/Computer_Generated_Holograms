@@ -3,8 +3,7 @@ function [ CCD ] = holocubeV15( Img_o_e, shape, method )
 %{ 
 %%  Ce programme reprend holocubeV14. Le but est de produire l'image qui sera affichée sur le capteur LCD qu'on va diffracter avec le laser (= onde de référence)
 %
-% * *Img_o_e* est l'objet d'origine : c'est une matrice de points en 3 dimensions de côté N.
-    On pourra utiliser la fonction ?????? pour la générer.
+% * *Img_o_e* est l'objet d'origine. On entre une matrice 
 % * *shape* remplace l'image si Img_o_e n'est pas une matrice 3D.
 % * *method* Calcul par S-FFT, D-FFT, IMG4FFT, DBFT
 

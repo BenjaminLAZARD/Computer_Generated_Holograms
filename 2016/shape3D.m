@@ -69,15 +69,15 @@ switch shape %le switch en matlab ne marche pas comme le switch en C. Notamment 
      %figure(4),surf(X,Y,Z);%trace la surface correspondant à la demi-sphère.
      object = object(1:m-1,:);%On avait alloué trop de mémoire avec la matrice Zéros au début. On retire les points non nécessaires.
      
-    case 'tube'
+    case 'tube' %padding conseillé lors de tests . Exemple : shape3D('tube',100,5,0);
         object = zeros(N^3,3);
         R = N/2-padding;% Rayon du cercle du tube dont on veut générer les coordonnées
         m=1;
         for xx = (-N/2+1 : 1 : N/2)
-            for yy = (-N/2+1 : 1 : N/2)
-                if abs(xx^2+yy^2-R^2)<= 30
-                    for zz=(-N/2+1 : 1 : N/2) + padding
-                        object(m,:)=(pas_pixel*([xx, yy, zz]+N/2));%On remet l'origine en haut à gauche par l'ajout du N/2 aux coordonnées.
+            for yy = (-N/2+1 : 1 : N/2)%Pour chaque couple xx yy du plan centré en O dans une fenêtre de taille N^2
+                if abs(xx^2+yy^2-R^2)<= N/3 %Si ce couple vérifie à peu prêt l'équation d'un cercle.
+                    for zz=(-N/2+1 : 1 : N/2) + padding %On enregistre les coordonnées de ce point pour Z dans toute la profondeur du cube de taille N^3
+                        object(m,:)=(pas_pixel*([xx, yy, zz]+N/2));%On remet en plus l'origine en haut à gauche par l'ajout du N/2 aux coordonnées.
                         m = m+1;
                     end
                 end
@@ -98,7 +98,7 @@ switch shape %le switch en matlab ne marche pas comme le switch en C. Notamment 
         [X, Y] = meshgrid(xx, yy);
         X = pas_pixel*X;%ignorer le warning
         Y=pas_pixel*Y;%ignorer le warning
-        Z=eval(shape);%dans "expression" rentrée en paramètre de la fonction shape3D doivent apparaître X et Y (c'est pour ça qu'on a un warning au-dessus)
+        Z=eval(shape);%dans "shape" rentrée en paramètre de la fonction shape3D doivent apparaître X et Y (c'est pour ça qu'on a un warning au-dessus)
         m=1;
         for k=xx+N/2
             for l=yy+N/2
