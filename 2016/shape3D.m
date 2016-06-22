@@ -21,27 +21,27 @@ narginchk(minInputs,maxInputs);
 switch shape %le switch en matlab ne marche pas comme le switch en C. Notamment les breaks sont inutiles.
     case 'cube'
         object = zeros((N-2*padding)*4+(N-2*padding-2)*8,3);% Nombre de points=pixels qui représentent le cube (12 arrêtes. Il y a 8 points qu'on compte 2 fois car il  y a 8 sommets)       
-        dim_side = (N-2*padding); % Taille d'une arrête en points=pixels.
+        dim_side = (N-2*padding); % Taille d'une arête en points=pixels.
         for m = 1 : 1 : dim_side
-            %on remplit les coordonnées des arrêtes qui sont sur l'axe Z
+            %on remplit les coordonnées des arêtes qui sont sur l'axe Z
             object(m,                     :) = [padding+1, padding+1, m+padding];%coordonnées en pixels des points de l'arrête 0 (cf. schéma correspondant dans le rapport)
-            object(m+1*dim_side,:) = [N-padding, padding+1, m+padding];%coordonnées en pixels des points de l'arrête 1 (cf. schéma correspondant dans le rapport)
-            object(m+2*dim_side,:) = [padding+1,N-padding, m+padding];%coordonnées en pixels des points de l'arrête 2 (cf. schéma correspondant dans le rapport)
+            object(m+1*dim_side,:) = [N-padding, padding+1, m+padding];%coordonnées en pixels des points de l'arête 1 (cf. schéma correspondant dans le rapport)
+            object(m+2*dim_side,:) = [padding+1,N-padding, m+padding];%coordonnées en pixels des points de l'arête 2 (cf. schéma correspondant dans le rapport)
             object(m+3*dim_side,:) = [N-padding, N-padding, m+padding];%coordonnées en pixels des points de l'arrête 3 (cf. schéma correspondant dans le rapport)
         end
-        dim_side2 = dim_side-2;%(en effet, les 1ère arrêtes tracées contiennent les 8 sommets du cube. On ne veut pas les répéter : toutes les autres arrêtes n'ont ps de sommets).
+        dim_side2 = dim_side-2;%(en effet, les 1ère arêtes tracées contiennent les 8 sommets du cube. On ne veut pas les répéter : toutes les autres arrêtes n'ont ps de sommets).
         last = 4*dim_side;
         for m = 1 : 1 : dim_side2
             %on remplit les coordonnées des arrêtes qui sont sur l'axe X
-            object(m+last,:) = [m+padding+1, padding+1, padding+1];%coordonnées en pixels des points de l'arrête 4 (cf. schéma correspondant dans le rapport)
-            object(m+last+1*dim_side2,:) = [m+padding+1, padding+1, N-padding];%coordonnées en pixels des points de l'arrête 5 (cf. schéma correspondant dans le rapport)
-            object(m+last+2*dim_side2,:) = [m+padding+1, N-padding, padding+1];%coordonnées en pixels des points de l'arrête 6 (cf. schéma correspondant dans le rapport)
-            object(m+last+3*dim_side2,:) = [m+padding+1, N-padding, N-padding];%coordonnées en pixels des points de l'arrête 7 (cf. schéma correspondant dans le rapport)
-             %on remplit les coordonnées des arrêtes qui sont sur l'axe Y
-            object(m+last+4*dim_side2,:) = [padding+1, m+padding+1, padding+1];%coordonnées en pixels des points de l'arrête 8 (cf. schéma correspondant dans le rapport)
-            object(m+last+5*dim_side2,:) = [N-padding, m+padding+1, padding+1];%coordonnées en pixels des points de l'arrête 9 (cf. schéma correspondant dans le rapport)
-            object(m+last+6*dim_side2,:) = [padding+1, m+padding+1, N-padding];%coordonnées en pixels des points de l'arrête 10 (cf. schéma correspondant dans le rapport)
-            object(m+last+7*dim_side2,:) = [N-padding, m+padding+1, N-padding];%coordonnées en pixels des points de l'arrête 11 (cf. schéma correspondant dans le rapport)
+            object(m+last,:) = [m+padding+1, padding+1, padding+1];%coordonnées en pixels des points de l'arête 4 (cf. schéma correspondant dans le rapport)
+            object(m+last+1*dim_side2,:) = [m+padding+1, padding+1, N-padding];%coordonnées en pixels des points de l'arête 5 (cf. schéma correspondant dans le rapport)
+            object(m+last+2*dim_side2,:) = [m+padding+1, N-padding, padding+1];%coordonnées en pixels des points de l'arête 6 (cf. schéma correspondant dans le rapport)
+            object(m+last+3*dim_side2,:) = [m+padding+1, N-padding, N-padding];%coordonnées en pixels des points de l'arête 7 (cf. schéma correspondant dans le rapport)
+             %on remplit les coordonnées des arêtes qui sont sur l'axe Y
+            object(m+last+4*dim_side2,:) = [padding+1, m+padding+1, padding+1];%coordonnées en pixels des points de l'arête 8 (cf. schéma correspondant dans le rapport)
+            object(m+last+5*dim_side2,:) = [N-padding, m+padding+1, padding+1];%coordonnées en pixels des points de l'arête 9 (cf. schéma correspondant dans le rapport)
+            object(m+last+6*dim_side2,:) = [padding+1, m+padding+1, N-padding];%coordonnées en pixels des points de l'arête 10 (cf. schéma correspondant dans le rapport)
+            object(m+last+7*dim_side2,:) = [N-padding, m+padding+1, N-padding];%coordonnées en pixels des points de l'arête 11 (cf. schéma correspondant dans le rapport)
         end
         object= pas_pixel*object;%On retourne les coordonnées en m et non plus en pixels.
         figure(5),scatter3(object(:,1), object(:,2), object(:,3));% On trace le cube à partir des coordonnées ainsi trouvées.

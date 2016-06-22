@@ -1,7 +1,7 @@
 function [ Uf ] = DFFT( Img, Lo, lambda, zo)
-%D-FFT (utilisée quand la distance de diffraction est courte). Cet algorithme est plus rapide que la S-FFT, et prend tout l'écran pour de petites distances.
-%* *Img* est la matrice 2D qui correspond à l'image. Les coefs de la matrice
-%correspondent à l'intensité lumineuse sur  1 octet.(pasde couleur !)
+%S-FFT
+%* *Img* est la matrice 2D qui correspond à l'image. Les coeffs de la matrice
+%correspondent à l'intensité lumineuse sur  1 octet.(pas de couleur !)
 %* *Lo* est la taille désirée de Img en m (indépendamment du nb de pixels)
 
 % Toutes les unités sont en m (U.S.I)
