@@ -6,7 +6,7 @@ function [ object ] = shape3D( shape, N, padding, pas_pixel)
 %* *pas_pixel* influe sur la fenêtre dans laquelle on évalue la fonction.
 
 %Attention on devra peut-être modifier le fenêtrage des fonctions pour
-%obtenir
+%obtenir des objets sans "trous".
 
 if mod(N,2)~=0;
     fprintf('La valeur du paramètre N dans la fonction shape3D doit être paire ! \n')
