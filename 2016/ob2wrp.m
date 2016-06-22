@@ -1,4 +1,4 @@
-function WRP = objecttoWRP(M)
+function WRP = ob2wrp(M)
 
 lambda = 633*10^-9;
 

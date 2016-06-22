@@ -44,8 +44,6 @@ switch shape %le switch en matlab ne marche pas comme le switch en C. Notamment 
             object(m+last+7*dim_side2,:) = [N-padding, m+padding+1, N-padding];%coordonnées en pixels des points de l'arête 11 (cf. schéma correspondant dans le rapport)
         end
         object= pas_pixel*object;%On retourne les coordonnées en m et non plus en pixels.
-        figure(5),scatter3(object(:,1), object(:,2), object(:,3));% On trace le cube à partir des coordonnées ainsi trouvées.
-        set(gca,'DataAspectRatio',[1,1,1]);
         
     case 'sphere'
         object = zeros(N^3,3);
@@ -70,11 +68,22 @@ switch shape %le switch en matlab ne marche pas comme le switch en C. Notamment 
         end
      %figure(4),surf(X,Y,Z);%trace la surface correspondant à la demi-sphère.
      object = object(1:m-1,:);%On avait alloué trop de mémoire avec la matrice Zéros au début. On retire les points non nécessaires.
-     figure(5),scatter3(object(:,1), object(:,2), object(:,3));% On trace la sphere à partir des coordonnées ainsi trouvées.
-     set(gca,'DataAspectRatio',[1,1,1]);
      
     case 'tube'
-        
+        object = zeros(N^3,3);
+        R = N/2-padding;% Rayon du cercle du tube dont on veut générer les coordonnées
+        m=1;
+        for xx = (-N/2+1 : 1 : N/2)
+            for yy = (-N/2+1 : 1 : N/2)
+                if abs(xx^2+yy^2-R^2)<= 30
+                    for zz=(-N/2+1 : 1 : N/2) + padding
+                        object(m,:)=(pas_pixel*([xx, yy, zz]+N/2));%On remet l'origine en haut à gauche par l'ajout du N/2 aux coordonnées.
+                        m = m+1;
+                    end
+                end
+            end
+        end
+        object = object(1:m-1,:);%On avait alloué trop de mémoire avec la matrice Zéros au début. On retire les points non nécessaires.
     otherwise
         %expression = input('Quelle fonction voulez-vous tracer ?\n   Z=f(X,Y) =  ','s');
         
@@ -102,10 +111,10 @@ switch shape %le switch en matlab ne marche pas comme le switch en C. Notamment 
                     end
             end
         end
-     %figure(4),surf(X,Y,Z);
-     object = object(1:m-1,:);%On avait alloué trop de mémoire avec la matrice Zéros au début. On retire les points non nécessaires.
-     figure(5),scatter3(object(:,1), object(:,2), object(:,3));% On trace la fonction à partir des coordonnées ainsi trouvées.
-     set(gca,'DataAspectRatio',[1,1,1]);
-
+        object = object(1:m-1,:);%On avait alloué trop de mémoire avec la matrice Zéros au début. On retire les points non nécessaires.
+end
+%figure(4),surf(X,Y,Z);
+figure(5),scatter3(object(:,1), object(:,2), object(:,3));% On trace la fonction à partir des coordonnées ainsi trouvées.
+set(gca,'DataAspectRatio',[1,1,1]);% A commenter lorsqu'on veut visualiser par exemple 'X.*Y' car alors l'axe en Z ne doit pas être à la même échelle que les autres axes pour avoir une vue intéressante.
 end
 

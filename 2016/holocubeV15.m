@@ -8,7 +8,6 @@ function [ CCD ] = holocubeV15( Img_o_e, shape, method )
 % * *shape* remplace l'image si Img_o_e n'est pas une matrice 3D.
 % * *method* Calcul par S-FFT, D-FFT, IMG4FFT, DBFT
 
-
 %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

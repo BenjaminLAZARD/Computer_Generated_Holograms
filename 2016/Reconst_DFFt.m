@@ -18,7 +18,8 @@ N=min(N1,N2);%% restriction de l'image
 Ih = Ih1(1:N,1:N) - mean2( Ih1(1:N,1:N));%% suppression de la valeur moyenne de l'image d'entrée 
 pix=L/N;
 %%%%Filtrer l'ordre 0 de l'hologramme 
-pg = input('Filtrer l''ordre 0 de l''hologramme ? Si Oui taper 1 (0/1)');
+%pg = input('Filtrer l''ordre 0 de l''hologramme ? Si Oui taper 1 (0/1)'); %A activer si
+pg=1;%temporaire cf. ligne ci-dessus.
 if pg == 1 ,
     fm = filter2(fspecial('average',3),Ih);
     Ih=Ih-fm;
