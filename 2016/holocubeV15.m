@@ -1,4 +1,4 @@
-function [ CCD ] = holocubeV15( M, L, z0 )
+function [ SLM ] = holocubeV15( M, rho)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %{ 
 %%  Ce programme reprend holocubeV14. Le but est de produire l'image qui sera affichée sur le capteur LCD qu'on va diffracter avec le laser (= onde de référence)
@@ -7,34 +7,53 @@ function [ CCD ] = holocubeV15( M, L, z0 )
 On pourra aussi tester directement avec les arguments 'cube', 'tube', 'sphere'.
 % * *method* Calcul par S-FFT, D-FFT, IMG4FFT, DBFT
 %* *z0* est la disance entre l'image et le SLM
-% * *L* est la largeur de l'image obtenu en sortie.
+% * *Li* est la largeur de l'image obtenu en sortie.
+%* *rho* est un paramètre >=1
+
+Toutes les unités sont celles du Système International ( en gros pas de mm).
 
 %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 lambda = 633*10^-9;		%longeur d'onde du laser (en m)
 k = 2*pi/lambda;		    %vecteur d'onde (en m^-1)
-N=L^2/(lambda*z0);      %Largeur en pixels du plan WRP
+pas_pixel = 8*10^-6;	  %pas de la plaque SLM (en m)
+w=920;                            %largeur de la plaque SLM (en pixels)
+h=1080;                           %longueur de la plaque SLM (en pixels)
+L=w*pas_pixel;               %On calcule la largeur en mètres du SLM. A partir de maintenant, pour utiliser les calculs du livre, on considère le SLM carré de taille L^2.
 
+Lo=L;                               % taille de l'objet original. Ce paramètre est optimal d'après le livre (p.85)
+Nm= 350 ;                       % Nombre de points utilisés pour générer l'objet 3D Si M n'est pas déjà une matrice. (arbitraire. Plus c'est élevé, plus l'image 3D est continue. influe seulement sur le temps de calcul).
+pm= Lo/Nm;                    % Nombre de points utilisés pour générer l'objet 3D Si M n'est pas déjà une matrice. (le choix de pm est un peu arbitraire).
+
+d=z0/10;         %!!!!!!      % Distance entre le 1er plan de l'objet3D M et le WRP.                                                          %%%%Comment le choisir ???
+N=closerp2(L^2/(lambda*d)); % Largeur totale en pixels du plan WRP                                                                          N doit être une puissance de 2 pour améliorer l'algorithme de la FFT.
 pas_px_wrp = L/N;         % taille d'un pixel sur le plan WRP.
-d=z0/10;                         % Distance entre le 1er plan de l'obet 3D M et le WRP.
 
-Lo=L;                               %taille de l'objet original. Ce paramètre est optimal d'après le livre (p.85)
-Nm= 350 ;                       % Nombre de points utilisés pour générer l'objet 3D Si M n'est pas déjà une matrice.
-pm= Lo/Nm;                    % Nombre de points utilisés pour générer l'objet 3D Si M n'est pas déjà une matrice.
-padding = N*0.05;            % Espace entre les bord de l'objets 3D et celui-ci, si M n'est pas déjà une matrice.
- 
+z0=rho*4*Lo*L/(lambda*w);%distance entre le plan du WRP et le plan du SLM (Equation 5.20 p.173 du livre anglais).
+zr=inf;                                 %distance entre le point source de l'onde sphérique de référence et le plan du SLM.          Cette onde est virtuelle zr=inf correspond en fait à une onde plane.
+zc=inf;                                  %distance entre le point source de l'onde sphérique de reconstruction et le plan du SLM. Cette onde est réelle zc=inf correspond en fait à une onde plane.
+zi=-1/(1/z0 + 1/zc - 1/zr);%distance entre le plan du SLM et le plan de l'image reconstruite.                                          Ce calcul permet d'avoir une image nette dans le plan de reconstruction
+Gi= -zi/z0;                       %Grossissement de l'image recosntruite(Gy dans le livre)
 
+Li=rho*4*Gy*Lo;%Largeur du plan de l'image reconstruite (Equation 5.19 p.173 du livre anglais). L'image reconstruite en elle-même est plus petite.
+%Li=lambda*z0*w/L;%même résultat que ci-dessus. Quelles expression est la meilleure?
+%Calcul de Lw, la largeur de la partie utile du WRP. (On complète le pland du WRP avec des zéros (0-padding) pour occuper toute la longueur Lo)
+Lw= d*lambda/sqrt((L/N)^2-(lambda^2)/4); %calcul qui tient compte de la diffraction angulaire
+%ou bien : il faudra choisir.
+%Lw= L*(d+Nm*pm)/(d+Nm*pm+z0);%Calcul qui tient compte de la profondeur du cube (puis th de Thalès, cf. schéma dans le rapport)
+
+
+paddm = N*0.05;            % Espace entre les bord de l'objets 3D et celui-ci, si M n'est pas déjà une matrice. (arbitraire, mais peut permettre de centrer et rétrécir l'objet en même temps sur l'image recostruite. A tester).
 switch M
      case 'cube'
-         M=shape3D( 'cube', Nm, padding, pm);
+         M=shape3D( 'cube', Nm, paddm, pm);
      case 'tube'
-          M=shape3D( 'tube', Nm, padding*2, pm);
+          M=shape3D( 'tube', Nm, paddm*2, pm);
      case 'sphere'
-          M=shape3D( 'sphere', Nm, padding*2, pm);
+          M=shape3D( 'sphere', Nm, paddm*2, pm);
     otherwise
         if isa(M,'char')
-            M=shape3D( M, Nm, padding, pm);
+            M=shape3D( M, N, paddm, pm);
         end
  end
 
@@ -46,25 +65,15 @@ end
 % A ce stade on soit l'objet M entré comme matrice, soit une forme de  taille Lo^2 (m) ou Nm^2 (px).
 
 %Est-ce qu'on retire des points ? (car non visibles)
-WRP = ob2wrp(); %On récupère l'objet 2D qui contient la somme des ondes émises pour tous les points de l'objet à la distance d.
+%On récupère l'objet 2D qui contient la somme des ondes émises pour tous les points de l'objet à la distance d.
+WRP = ob2wrp(M, N, Lw, Lo, d, lambda); 
+%On fait la propragation de Fresnel sur la distance z0
+SLM = DFFT( WRP, Lo, lambda, zo);
 
-   
 %Création du LUT pour les calculs
 %Calcul de l'image CCD complète. (threads ? GPU?)
-CCD = zeros(1080, 1920); %matrice aux dimensions du capteur avec 1pt/px.
-switch (method)
-    case S-FFT:
-        ;
-    case D-FFT:
-        ;
-    case IMG4FFT:
-        ;
-    case DBFT:
-        ;
 %Retirer mathématiquement l'ordre 0
 %Fenêtre de choix de l'ordre 1 dans le domaine fréquentiel
-
-CCD = Img_o_e;
 
 end
 
