@@ -3,8 +3,8 @@ function [ R ] = Reconst( Img,L, Lo, lambda, zo, Gy,p)
 
 %%% Gy = grandissement 
 %%% p = paramétre d'affichage (>1) 
-
-Ih1 = double(Img)
+Img=imread(Img);
+Ih1 = double(Img);
 figure ;
 imagesc(Img);
 colormap(gray);
@@ -18,7 +18,8 @@ N=min(N1,N2);%% restriction de l'image
 Ih = Ih1(1:N,1:N) - mean2( Ih1(1:N,1:N));%% suppression de la valeur moyenne de l'image d'entrée 
 pix=L/N;
 %%%%Filtrer l'ordre 0 de l'hologramme 
-pg = input('Filtrer l''ordre 0 de l''hologramme ? Si Oui taper 1 (0/1)');
+%pg = input('Filtrer l''ordre 0 de l''hologramme ? Si Oui taper 1 (0/1)'); %A activer si
+pg=1;%temporaire cf. ligne ci-dessus.
 if pg == 1 ,
     fm = filter2(fspecial('average',3),Ih);
     Ih=Ih-fm;
@@ -58,7 +59,7 @@ zc =1/(1/zo+1/zi);
 sph = exp(1i*k/2/zc*(xx.^2+yy.^2));
 
 %%illuminer l'hologramme par une onde spérique 
-f=Ih.*sph %%multiplier le spectre de l'hologramme par l'onde spférique 
+f=Ih.*sph; %%multiplier le spectre de l'hologramme par l'onde spférique 
 TFUF = fftshift(fft2(f,N,N));
 (fft2(f,N,N));
 %%% éspace de Fourrier 
@@ -95,7 +96,7 @@ Gmin = min(min(abs(Uo).^.75));
 figure ;
 imagesc(abs(Uo).^.75,[Gmin,Gmax/1]);
 colormap(gray);
-axis equal
+axis equal;
 axis tight;
 title('Image reconstruite par DFFT');
 
@@ -103,42 +104,10 @@ title('Image reconstruite par DFFT');
 while isempty(p) == 0 
     imagesc(abs(Uo).^.75,[Gmin,Gmax/p]);
     colormap(gray);
-    axis equal
+    axis equal;
     axis tight;
     title('Image reconstruite par DFFT avec ajustement de grandissement');
     if p==0,
         break 
     end 
 end 
-
-
-
-
-
-
-
-     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
