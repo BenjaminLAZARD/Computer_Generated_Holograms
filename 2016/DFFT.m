@@ -32,12 +32,12 @@ fprintf('La valeur de z doit être inférieure à %f \n', zmax);
 
 Uo = Img_padd;%Uo = Champ des amplitudes complexes liées à Img_padd, la précision de chaque coef passe de 1o à un double
 
-%affichage de l'image avec padding
+%Affichage de l'image avec padding
 figure(1), imagesc(Img_padd), colormap(gray); 
 axis equal;
 axis tight;
 ylabel('pixels');
-xlabel(['Côté de l''image d''origine', num2str(Lo),'m']);
+xlabel(['Côté de l''image d''origine = ', num2str(Lo),'m']);
 title('Champ des amplitudes de l''image originale');
 
 %%%%%%%%%%%%%%%%%%%%%
@@ -56,14 +56,14 @@ Uf=ifft2(result,Max,Max);
 %%%%%%%%%%%%%%%%%%%%%%%
 
 
-%affichage de l'image après propagation
+%Affichage de l'image après propagation
 Intensite=abs(Uf);
 figure(3), imagesc(Intensite), colormap(gray); 
 axis equal;
 axis tight;
 ylabel('pixels');
-xlabel(['Côté de l''image d''origine', num2str(Lo),'m']);
-title(['Champ des amplitudes de l''image dffraactée après calcul par D-FFT sur la distance',num2str(zo),' m']);
+xlabel(['Côté de l''image d''origine = ', num2str(Lo),'m']);
+title(['Champ des amplitudes de l''image diffractée après calcul par D-FFT sur la distance ',num2str(zo),'m']);
 toc;
 end
 
