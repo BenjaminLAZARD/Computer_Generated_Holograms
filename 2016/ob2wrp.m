@@ -5,10 +5,10 @@ function WRP = ob2wrp(M, N, Lw, Lo, d, lambda)
 %* *Lo* la largeur totale en m du WRP
 %* *d* la distance entre le 1er plan de l'objet (+ éventuel padding dans la fonction shape3D)  WRP. (cf. schéma du rapport)
 
-WRP = zeros(N, N); %WRP carre
 sampling = Lo/N;
-Nw= N - (Lo-Lw)/sampling;%Taille utile en pixels (N inclut les pixels du 0-padding)
+Nw= floor((N - (Lo-Lw)/sampling)/2)*2; %Taille utile en pixels (N inclut les pixels du 0-padding)
 a0 = 10; %amplitude de l'onde emise par chaque point, supposee constante
+WRP = zeros(Nw, Nw); %WRP carre
 
 range=Nw/2;
 ipx=(-1*range):sampling:range;
@@ -26,7 +26,11 @@ for xWRP = 1:Nw
         end
     end
 end
-   
+
+%matriceLCD=[zeros(290,1080);zeros(Nw,290),WRP,zeros(Nw,);zeros(290,1080)];
+WRP = [zeros((N-Nw)/2,Nw);WRP;zeros((N-Nw)/2,Nw)] %ajout d'un padding pour atteindre 1080 x 1080
+WRP = [zeros(N,(N-Nw)/2),WRP,zeros(N,(N-Nw)/2)]
+
 figure(2), imshow(real(WRP));
 imwrite(real(WRP), 'outWRP.png');
 

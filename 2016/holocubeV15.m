@@ -33,17 +33,17 @@ d=z0/5;         %!!!!!!      % Distance entre le 1er plan de l'objet3D M et le W
 N=closerp2(Lo^2/(lambda*z0)); % Largeur totale en pixels du plan WRP   en px                                                              N doit être une puissance de 2 pour améliorer l'algorithme de la FFT.
 pas_px_wrp = Lo/N;         % taille d'un pixel sur le plan WRP.
 
-Li=rho*4*Gy*Lo;%Largeur du plan de l'image reconstruite (Equation 5.19 p.173 du livre anglais). L'image reconstruite en elle-même est plus petite.
+Li=rho*4*Gi*Lo;%Largeur du plan de l'image reconstruite (Equation 5.19 p.173 du livre anglais). L'image reconstruite en elle-même est plus petite.
 %Li=lambda*z0*w/L;%même résultat que ci-dessus. Quelles expression est la meilleure?
 %Calcul de Lw, la largeur de la partie utile du WRP. (On complète le pland du WRP avec des zéros (0-padding) pour occuper toute la longueur Lo)
 Lw= d*lambda/sqrt((L/h)^2-(lambda^2)/4); %calcul qui tient compte de la diffraction angulaire
 %ou bien : il faudra choisir.
 %Lw= L*(d+Nm*pm)/(d+Nm*pm+z0);%Calcul qui tient compte de la profondeur du cube (puis th de Thalès, cf. schéma dans le rapport)
 
-Nm= 350 ;                       % Nombre de points utilisés pour générer l'objet 3D Si M n'est pas déjà une matrice. (arbitraire. Plus c'est élevé, plus l'image 3D est continue. influe seulement sur le temps de calcul).
+Nm= 50 ;                       % Nombre de points utilisés pour générer l'objet 3D Si M n'est pas déjà une matrice. (arbitraire. Plus c'est élevé, plus l'image 3D est continue. influe seulement sur le temps de calcul).
 Lm=Lo;                            %Largeur du cube contenant l'objet 3D Si M n'est pas déjà une matrice. (arbitraire. Plus c'est élevé, plus l'image 3D est continue. influe seulement sur le temps de calcul).
 pm= Lm/Nm;                   % Nombre de points utilisés pour générer l'objet 3D Si M n'est pas déjà une matrice. (le choix de pm donc de Lw est un peu arbitraire).
-paddm = N*0.05;            % Espace entre les bord du cube de côté Nm contenant l'objet 3D et celui-ci, si M n'est pas déjà une matrice. (arbitraire, mais peut permettre de centrer et rétrécir l'objet en même temps sur l'image recostruite. A tester).
+paddm = floor(Nm*0.05);            % Espace entre les bord du cube de côté Nm contenant l'objet 3D et celui-ci, si M n'est pas déjà une matrice. (arbitraire, mais peut permettre de centrer et rétrécir l'objet en même temps sur l'image recostruite. A tester).
 if isa(M,'char')
     switch M
          case 'cube'
@@ -68,12 +68,12 @@ end
 %Est-ce qu'on retire des points ? (car non visibles)
 
 %L=0.0086 m = 8.6 mm et N=512. condition d'échantillonage respectée pour la DFFT avec z0>4*(0.0086^2)/((633*10^-9)*1080) = 43.27cm.
-frpintf('Largeur du SLM L=%s\n',L);
-frpintf('Distance entre le SLM et le WRP z0=%s\n',z0);
-frpintf('Distance entre le SLM et le  plan de l''image reconstruite=%s\n',zi);
-frpintf('Taille minimale du plan de l''image reconstruite Li=%s\n',Li);
-frpintf('Taille totale en m du plan du WRP Lw=%s\n',Lw);
-frpintf('Taille totale en pixels du plan du WRP N=%s\n',N);
+fprintf('Largeur du SLM L=%s\n',L);
+fprintf('Distance entre le SLM et le WRP z0=%s\n',z0);
+fprintf('Distance entre le SLM et le  plan de l''image reconstruite=%s\n',zi);
+fprintf('Taille minimale du plan de l''image reconstruite Li=%s\n',Li);
+fprintf('Taille totale en m du plan du WRP Lw=%s\n',Lw);
+fprintf('Taille totale en pixels du plan du WRP N=%s\n',N);
 
 %On récupère l'objet 2D qui contient la somme des ondes émises pour tous les points de l'objet à la distance d.
 WRP = ob2wrp(M, N, Lw, Lo, d, lambda); 

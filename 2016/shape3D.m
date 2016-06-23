@@ -24,7 +24,7 @@ switch shape %le switch en matlab ne marche pas comme le switch en C. Notamment 
         dim_side = (N-2*padding); % Taille d'une arête en points=pixels.
         for m = 1 : 1 : dim_side
             %on remplit les coordonnées des arêtes qui sont sur l'axe Z
-            object(m,                     :) = [padding+1, padding+1, m+padding];%coordonnées en pixels des points de l'arrête 0 (cf. schéma correspondant dans le rapport)
+            object(m,           :) = [padding+1, padding+1, m+padding];%coordonnées en pixels des points de l'arrête 0 (cf. schéma correspondant dans le rapport)
             object(m+1*dim_side,:) = [N-padding, padding+1, m+padding];%coordonnées en pixels des points de l'arête 1 (cf. schéma correspondant dans le rapport)
             object(m+2*dim_side,:) = [padding+1,N-padding, m+padding];%coordonnées en pixels des points de l'arête 2 (cf. schéma correspondant dans le rapport)
             object(m+3*dim_side,:) = [N-padding, N-padding, m+padding];%coordonnées en pixels des points de l'arrête 3 (cf. schéma correspondant dans le rapport)
