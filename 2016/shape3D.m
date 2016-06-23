@@ -114,7 +114,7 @@ switch shape %le switch en matlab ne marche pas comme le switch en C. Notamment 
         object = object(1:m-1,:);%On avait alloué trop de mémoire avec la matrice Zéros au début. On retire les points non nécessaires.
 end
 %figure(4),surf(X,Y,Z);
-figure(5),scatter3(object(:,1), object(:,2), object(:,3));% On trace la fonction à partir des coordonnées ainsi trouvées.
+figure(1),scatter3(object(:,1), object(:,2), object(:,3));% On trace la fonction à partir des coordonnées ainsi trouvées.
 set(gca,'DataAspectRatio',[1,1,1]);% A commenter lorsqu'on veut visualiser par exemple 'X.*Y' car alors l'axe en Z ne doit pas être à la même échelle que les autres axes pour avoir une vue intéressante.
 end
 

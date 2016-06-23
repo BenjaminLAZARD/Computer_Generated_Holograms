@@ -1,20 +1,16 @@
-function WRP = ob2wrp(M, Nw, Lw, Lo, d, lambda)
+function WRP = ob2wrp(M, N, Lw, Lo, d, lambda)
 %* *M* est une matrice de taille    Nbpoints x 3    représentant un objet 3D. (coordonnées en x y et z de chaque point) l'unité est le m.
-%* *Nw* la largeur totale en pixel du WRP.
+%* *N* la largeur totale en pixel du WRP.
 %* *Lw* la largeur utile en m du WRP.
 %* *Lo* la largeur totale en m du WRP
 %* *d* la distance entre le 1er plan de l'objet (+ éventuel padding dans la fonction shape3D)  WRP. (cf. schéma du rapport)
 
-%Nw = 500 ; %valeurs a tester ; WRP de 500x500 pixels pour le moment
-WRP = zeros(Nw, Nw); %WRP carre
-
+WRP = zeros(N, N); %WRP carre
+sampling = Lo/N;
+Nw= N - (Lo-Lw)/sampling;%Taille utile en pixels (N inclut les pixels du 0-padding)
 a0 = 10; %amplitude de l'onde emise par chaque point, supposee constante
 
-%L=0.0254;
-sampling = Lw/500;
-
-dimensions = 1;
-range=dimensions*0.0254/2;
+range=Nw/2;
 ipx=(-1*range):sampling:range;
 ipy=(-1*range):sampling:range;
 
@@ -31,7 +27,7 @@ for xWRP = 1:Nw
     end
 end
    
-imshow(real(WRP));
+figure(2), imshow(real(WRP));
 imwrite(real(WRP), 'outWRP.png');
 
 end

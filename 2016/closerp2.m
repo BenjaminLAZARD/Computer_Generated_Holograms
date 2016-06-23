@@ -6,5 +6,6 @@ x=abs(x);
 while y<x
     y=y*2;
 end
+%y=y/2;
 end
 
