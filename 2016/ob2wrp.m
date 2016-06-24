@@ -8,7 +8,7 @@ tic;
 
 sampling = Lo/N;
 Nw= floor((N - (Lo-Lw)/sampling)/2)*2; %Taille utile en pixels (N inclut les pixels du 0-padding)
-fprintf('nombre de pixels du WRP = %d pixels \n', Nw);
+fprintf('A \n', Nw);
 a0 = 10; %amplitude de l'onde emise par chaque point, supposee constante
 WRP = zeros(Nw, Nw); %WRP carre
 
@@ -17,7 +17,7 @@ ipx=(-1*range):sampling:range;
 ipy=(-1*range):sampling:range;
 
 for xWRP = 1:Nw
-    %fprintf('Calcul pour xWRP = %d sur %d valeurs \n', xWRP, Nw);
+    fprintf('Calcul pour xWRP = %d sur %d valeurs \n', xWRP, Nw);
     for yWRP = 1:Nw
         for j=1:size(M,1)
             xj = M(j, 1);
