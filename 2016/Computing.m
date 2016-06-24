@@ -2,7 +2,7 @@ function [ film ] = Computing(objectpoints)
 %UNTITLED4 Summary of this function goes here
 %   Detailed explanation goes here
 
-sampling = 0.0254/1200;
+sampling = 0.0254/600;
 wavelength = 633e-9;
 
 dimensions = 1;
@@ -28,6 +28,8 @@ for o=1:size(objectpoints,1)
         end
     end
 end
-
+    
+imshow(real(film));
 imwrite(real(film), 'outthese.png');
+end
 
