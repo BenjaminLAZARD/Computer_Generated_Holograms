@@ -13,10 +13,10 @@ k=2*pi/lambda; % vecteur d'onde
 %et hauteur sont pairs.
 [M,N] = size(Img);
 if mod(M,2)==1
-    Img=[Img,zeros(M,1)];
+    Img=[Img,zeros(N,1)];
 end
 if mod(N,2)==1
-   % Img=[Img;zeros(N,1)];
+    Img=[Img,zeros(M,1)];
 end
 %Ensuite on fait le padding proprement dit.
 [M,N] = size(Img);
