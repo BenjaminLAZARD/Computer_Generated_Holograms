@@ -5,6 +5,7 @@ function [ SLM ] = holocubeV15( M, rho)
 %
 % * *M* est l'objet d'origine. On entre une matrice de taille Nombredepointsdel'objet:::3 Où les colonnes sont les coordonnées  des points (x,y,z), l'origine étant prise en haut à gauche de l'image (considérer "dans un coin" pour les images symétriques)
 On pourra aussi tester directement avec les arguments 'cube', 'tube', 'sphere'.
+% on pourra aussi tester un point avec  holocubeV15([Lm,Lm, 5],1);
 % * *method* Calcul par S-FFT, D-FFT, IMG4FFT, DBFT
 %* *z0* est la distance entre l'image et le SLM
 % * *Li* est la largeur de l'image obtenue en sortie.
@@ -62,6 +63,14 @@ if size(M,2) ~= 3 %Si la matrice M ne colle pas avec notre représentation de l'o
     return
 end
 
+
+%recentrage des points.
+M(:,1)=M(:,1)-Lm/2;
+M(:,2)=M(:,2)-Lm/2;
+
+figure(1),scatter3(M(:,1), M(:,2), M(:,3));% On trace la fonction à partir des coordonnées de M dans le plan 3D pour bien voir l'objet tracé.
+set(gca,'DataAspectRatio',[1,1,1]);
+
 % A ce stade on soit l'objet M entré comme matrice, soit une forme de  taille Lo^2 (m) ou Nm^2 (px).
 
 
@@ -75,10 +84,18 @@ fprintf('Taille minimale du plan de l''image reconstruite Li=%f m \n',Li);
 fprintf('Taille totale en m du plan du WRP Lw=%f m \n',Lw);
 fprintf('Taille totale en pixels du plan du WRP N=%d pixels\n',N);
 
+
 %On récupère l'objet 2D qui contient la somme des ondes émises pour tous les points de l'objet à la distance d.
 WRP = ob2wrp(M, N, Lw, Lo, d, lambda); 
 %On fait la propragation de Fresnel sur la distance z0
 SLM = DFFT( WRP, Lo, lambda, z0);% Ou plutôt que z0, mettre la vraie valeur du polycopié.
+
+%for m 1:1:5
+%    SLM=DFFT(WRP, Lo, lambda, z0);
+%end
+
+%Faire un switch case  en fonction de z pour utiliser soit la DFFT soit la SFFT
+
 
 %Création du LUT pour les calculs+ (threads ? GPU?)
 %Retirer mathématiquement l'ordre 0

@@ -33,7 +33,7 @@ end
 WRP = [zeros((N-Nw)/2,Nw);WRP;zeros((N-Nw)/2,Nw)]; %ajout d'un padding pour atteindre 1080 x 1080
 WRP = [zeros(N,(N-Nw)/2),WRP,zeros(N,(N-Nw)/2)];
 
-figure(2), imshow(real(WRP));
+figure(2), imagesc(real(WRP)); colormap(gray); 
 toc;
 imwrite(real(WRP), 'outWRP.png');
 

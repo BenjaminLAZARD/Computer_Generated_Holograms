@@ -25,15 +25,15 @@ Z1 = zeros(Max, (Max-N)/2);
 Z2 = zeros((Max-M)/2,N);
 Img_padd = [Z1,[Z2;Img;Z2],Z1]; %[;] fait une concaténation sur les lignes. [,] fait une concaténation sur les colonnes.
 
-%zmax est la distance minimale entre le CCD et l'image reconstituée pour que le théorème de Shannon soit vérifié. 
+%zmax est la distance maximale entre le CCD et l'image reconstituée pour que le théorème de Shannon soit vérifié. 
 %Le calcul est optimisé par rapport à lambda et à l'échantillonage (nb de pixels maximal du CCD), (p.89 du livre en Anglais)
 zmax= Lo^2/(Max*lambda);
-fprintf('La valeur de z doit être supérieure à %f \n', zmax);
+fprintf('La valeur de z doit être inférieure à %f \n', zmax);
 
 Uo = Img_padd;%Uo = Champ des amplitudes complexes liées à Img_padd, la précision de chaque coef passe de 1o à un double
 
 %Affichage de l'image avec padding
-figure(3), imagesc(abs(Img_padd)), colormap(gray); 
+figure(2), imagesc(real(Img_padd)), colormap(gray); 
 axis equal;
 axis tight;
 ylabel('pixels');

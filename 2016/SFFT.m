@@ -29,7 +29,7 @@ fprintf('La valeur de z doit être supérieure à %f \n', zmin);
 Uo = double(Img_padd);%Uo = Champ des amplitudes complexes liées à Img_padd, la précision de chaque coef passe de 1o à un double
 
 %affichage de l'image avec padding
-figure(1), imagesc(Img_padd), colormap(gray); 
+figure(3), imagesc(real(Img_padd)), colormap(gray); 
 axis equal;
 axis tight;
 ylabel('pixels');
@@ -60,12 +60,12 @@ Uf=Uf.*phase;
 
 %affichage de l'image après propagation
 Intensite=abs(Uf);
-figure(2), imagesc(Intensite), colormap(gray); 
+figure(4), imagesc(Intensite), colormap(gray); 
 axis equal;
 axis tight;
 ylabel('pixels');
 xlabel(['Côté de l''image d''origine = ', num2str(L),'m']);
-title(['Champ des amplitudes de l''image diffractée après calcul par S-FFT sur la distance z = ',num2str(zo),' m']);
+title(['Champ des amplitudes de l''image diffractée après  par S-FFT sur la distance z = ',num2str(zo),' m']);
 toc;
 end
 
