@@ -5,8 +5,9 @@ function [ Uf ] = DFFT( Img, Lo, lambda, zo)
 %* *Lo* est la taille désirée de Img en m (indépendamment du nb de pixels)
 
 % Toutes les unités sont en m (U.S.I)
-tic;
 k=2*pi/lambda; % vecteur d'onde
+
+Img=imread('outWRP.png');%test car il semble que passer l'image en argument n'est pas terrible.
 
 % On fait un 0-padding de l'image liée à la matrice Img. Le but est juste d'en faire un carré. 
 %Pour cela on commence par s'assurer que que les nombres de pixels en largeur
@@ -28,7 +29,7 @@ Img_padd = [Z1,[Z2;Img;Z2],Z1]; %[;] fait une concaténation sur les lignes. [,] 
 %zmax est la distance maximale entre le CCD et l'image reconstituée pour que le théorème de Shannon soit vérifié. 
 %Le calcul est optimisé par rapport à lambda et à l'échantillonage (nb de pixels maximal du CCD), (p.89 du livre en Anglais)
 zmax= Lo^2/(Max*lambda);
-fprintf('La valeur de z doit être inférieure à %f \n', zmax);
+fprintf('La valeur de z0 doit être inférieure à %f cm\n', zmax*10^2);
 
 Uo = Img_padd;%Uo = Champ des amplitudes complexes liées à Img_padd, la précision de chaque coef passe de 1o à un double
 
@@ -57,16 +58,15 @@ Uf=ifft2(result,Max,Max);
 
 
 %Affichage de l'image après propagation
-Intensite=abs(Uf);
-figure(4), imagesc(Intensite), colormap(gray); 
+Intensite=real(Uf);%real ou abs ?(ça inverse les bandes d'ombres et de lumière selon que l'on prend l'un ou l'autre).
+figure(3), imagesc(Intensite), colormap(gray); 
 axis equal;
 axis tight;
 ylabel('pixels');
 xlabel(['Côté de l''image d''origine = ', num2str(Lo),'m']);
 title(['Champ des amplitudes de l''image diffractée après calcul par D-FFT sur la distance ',num2str(zo),'m']);
-toc;
 
-imwrite(real(Intensite), 'outDFFT.png');
+imwrite(Intensite, 'outDFFT.png');
 
 end
 

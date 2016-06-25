@@ -1,12 +1,13 @@
 function [ object ] = shape3D( shape, N, padding, pas_pixel)
 %Sert à générer un objet 3D comme une matrice de points. Cela sert dans HolocubeV15 pour calculer les amplitudes complexes du plan objet.
-%* *shape* soit _'cube'_, soit  _'sphere'_, soit'Z= f(X,Y)' (en remplaçant * par .* et ^ par .^ dans ce dernier cas).
-%* *N* la matrice 3Dobject est de taille N^3. N doit être pair.
+%* *shape* soit _'cube'_, soit  _'sphere'_, soit'Z= f(X,Y)' (en remplaçant
+%* par .* et ^ par .^ dans ce dernier cas), soit '_cercle'_ soit _'carre'_ soit _'carrevide'_ soit _'pt'_ soit _'2pts'_, soit _'pdd'_ (points devant-derrière)
+%* *N* l'objet est contenu dans un cube de taille N^3 pixels. Il y a souvent moins de points. N doit être pair.
 %* *padding* décrit le nombre de pixels laissés libres au bord du cube N^3 pour que la shape soit inscrit dedans avec des "marges"
 %* *pas_pixel* influe sur la fenêtre dans laquelle on évalue la fonction.
 
-%Attention on devra peut-être modifier le fenêtrage des fonctions pour
-%obtenir des objets sans "trous".
+% L'origine des figures est toujours dans un coin du cube de taille N^3. Les coordonnées sont donc toujours positives dans les figures données ici.
+%Attention on devra peut-être modifier le fenêtrage des fonctions pour obtenir des objets sans "trous" (exemple de la sphère).
 
 if mod(N,2)~=0;
     fprintf('La valeur du paramètre N dans la fonction shape3D doit être paire ! \n')
@@ -29,7 +30,7 @@ switch shape %le switch en matlab ne marche pas comme le switch en C. Notamment 
             object(m+2*dim_side,:) = [padding+1,N-padding, m+padding];%coordonnées en pixels des points de l'arête 2 (cf. schéma correspondant dans le rapport)
             object(m+3*dim_side,:) = [N-padding, N-padding, m+padding];%coordonnées en pixels des points de l'arrête 3 (cf. schéma correspondant dans le rapport)
         end
-        dim_side2 = dim_side-2;%(en effet, les 1ère arêtes tracées contiennent les 8 sommets du cube. On ne veut pas les répéter : toutes les autres arrêtes n'ont ps de sommets).
+        dim_side2 = dim_side-2;%(en effet, les 1ère arêtes tracées contiennent les 8 sommets du cube. On ne veut pas les répéter : toutes les autres arrêtes n'ont pas de sommets).
         last = 4*dim_side;
         for m = 1 : 1 : dim_side2
             %on remplit les coordonnées des arrêtes qui sont sur l'axe X
@@ -43,7 +44,7 @@ switch shape %le switch en matlab ne marche pas comme le switch en C. Notamment 
             object(m+last+6*dim_side2,:) = [padding+1, m+padding+1, N-padding];%coordonnées en pixels des points de l'arête 10 (cf. schéma correspondant dans le rapport)
             object(m+last+7*dim_side2,:) = [N-padding, m+padding+1, N-padding];%coordonnées en pixels des points de l'arête 11 (cf. schéma correspondant dans le rapport)
         end
-        object= pas_pixel*object;%On retourne les coordonnées en m et non plus en pixels.
+        object= pas_pixel*(object-1);%On retourne les coordonnées en m et non plus en pixels. De plus , on met bien l'orgine à 0 et non à (1,1).
         
     case 'sphere'
         object = zeros(N^3,3);
@@ -68,6 +69,9 @@ switch shape %le switch en matlab ne marche pas comme le switch en C. Notamment 
         end
      %figure(4),surf(X,Y,Z);%trace la surface correspondant à la demi-sphère.
      object = object(1:m-1,:);%On avait alloué trop de mémoire avec la matrice Zéros au début. On retire les points non nécessaires.
+     %On recentre la sphère dans le plan XY, pour que l'origine soit bien O et non (1,1) (les matrices en matlab commencent à 1).
+     object(:,1) = object(:,1)-pas_pixel;
+     object(:,2) = object(:,2)-pas_pixel;
      
     case 'tube' %padding conseillé lors de tests . Exemple : shape3D('tube',100,5,0);
         object = zeros(N^3,3);
@@ -84,6 +88,60 @@ switch shape %le switch en matlab ne marche pas comme le switch en C. Notamment 
             end
         end
         object = object(1:m-1,:);%On avait alloué trop de mémoire avec la matrice Zéros au début. On retire les points non nécessaires.
+        object = object - pas_pixel;% On met bien l'origine en 0 et non en (1,1).
+
+    case 'cercle' %padding conseillé lors de tests . Exemple : shape3D('tube',100,5,0);
+        object = zeros(N^2,3);
+        R = N/2-padding;% Rayon du cercle du tube dont on veut générer les coordonnées
+        m=1;
+        for xx = (-N/2+1 : 1 : N/2)
+            for yy = (-N/2+1 : 1 : N/2)%Pour chaque couple xx yy du plan centré en O dans une fenêtre de taille N^2
+                if abs(xx^2+yy^2-R^2)<= N/3 %Si ce couple vérifie à peu prêt l'équation d'un cercle.
+                        object(m,:)=(pas_pixel*([xx+N/2, yy+N/2, 0]));%On remet en plus l'origine en haut à gauche par l'ajout du N/2 aux coordonnées.
+                        m = m+1;
+                end
+            end
+        end
+        object = object(1:m-1,:);%On avait alloué trop de mémoire avec la matrice Zéros au début. On retire les points non nécessaires.
+        %On recentre le cercle dans le plan XY, pour que l'origine soit bien O et non (1,1) (les matrices en matlab commencent à 1).
+       object(:,1) = object(:,1)-pas_pixel;
+       object(:,2) = object(:,2)-pas_pixel;
+        
+    case 'carrevide'
+        object = zeros((N-2*padding)*2+(N-2*padding-2)*2,3);% Nombre de points=pixels qui représentent le cube (12 arrêtes. Il y a 8 points qu'on compte 2 fois car il  y a 8 sommets)       
+        dim_side = (N-2*padding); % Taille d'une arête en points=pixels.
+        for m = 1 : 1 : dim_side
+            %on remplit les coordonnées des arrêtes qui sont sur l'axe X
+            object(m+0*dim_side,:) = [m+padding, padding+1, 0];%coordonnées en pixels des points de l'arête 5 (cf. schéma correspondant dans le rapport)
+            object(m+1*dim_side,:) = [m+padding, N-padding, 0];%coordonnées en pixels des points de l'arête 7 (cf. schéma correspondant dans le rapport)
+             %on remplit les coordonnées des arêtes qui sont sur l'axe Y
+            object(m+2*dim_side,:) = [padding+1, m+padding, 0];%coordonnées en pixels des points de l'arête 10 (cf. schéma correspondant dans le rapport)
+            object(m+3*dim_side,:) = [N-padding, m+padding, 0];%coordonnées en pixels des points de l'arête 11 (cf. schéma correspondant dans le rapport)
+        end
+        object= pas_pixel*object;%On retourne les coordonnées en m et non plus en pixels.
+        
+    case 'carre'       
+        dim_side = (N-2*padding); % Taille d'une arête en points=pixels.
+        object = zeros(dim_side^2,3);% Nombre de points=pixels qui représentent le cube (12 arrêtes. Il y a 8 points qu'on compte 2 fois car il  y a 8 sommets)
+        for m = 1 : 1 : dim_side     
+            for l = 1:1:dim_side
+                object(m+(l-1)*(dim_side),:) = [padding+l-1, m+padding-1, 0];
+            end
+        end
+        object= pas_pixel*object;%On retourne les coordonnées en m et non plus en pixels.
+        
+    case 'pt'
+        object=[floor(N/2), floor(N/2), 0];
+        object= pas_pixel*object;%On retou2ptsrne les coordonnées en m et non plus en pixels.
+        
+    case 'ptdd'
+        object=[[floor(N/2), floor(N/2), 0];[floor(N/2), floor(N/2), floor(N/2)]];
+        object= pas_pixel*object;%On retou2ptsrne les coordonnées en m et non plus en pixels.
+        
+    case '2pts'
+        object=[[floor(N/3), floor(N/2), 0];[floor(2*N/3), floor(N/2), 0]];
+        object= pas_pixel*object;%On retourne les coordonnées en m et non plus en pixels.
+        
     otherwise
         %expression = input('Quelle fonction voulez-vous tracer ?\n   Z=f(X,Y) =  ','s');
         
