@@ -3,10 +3,8 @@ function [ SLM ] = holocubeV15( M, rho)
 %{ 
 %%  Ce programme reprend holocubeV14. Le but est de produire l'image qui sera affichée sur le capteur LCD qu'on va diffracter avec le laser (= onde de référence)
 %
-% * *M* est l'objet d'origine. On entre une matrice de taille Nombredepointsdel'objet:::3 Où les colonnes sont les coordonnées  des points (x,y,z), l'origine étant prise en haut à gauche de l'image (considérer "dans un coin" pour les images symétriques)
-On pourra aussi tester directement avec les arguments 'cube', 'tube', 'sphere'.
-% on pourra aussi tester un point avec  holocubeV15([Lm,Lm, 5],1);
-% * *method* Calcul par S-FFT, D-FFT, IMG4FFT, DBFT
+% * *M* est l'objet d'origine. On entre une matrice de taille (Nombredepointsdel'objet,3) Où les colonnes sont les coordonnées  des points (x,y,z), l'origine étant prise en haut à gauche de l'image (considérer "dans un coin" pour les images symétriques)
+On pourra aussi tester directement avec les arguments 'cube', 'tube', 'sphere', 'pt'.
 %* *z0* est la distance entre l'image et le SLM
 % * *Li* est la largeur de l'image obtenue en sortie.
 %* *rho* est un paramètre >=1
@@ -41,12 +39,12 @@ Lw= d*lambda/sqrt((L/h)^2-(lambda^2)/4); %calcul qui tient compte de la diffract
 %ou bien : il faudra choisir.
 %Lw= L*(d+Nm*pm)/(d+Nm*pm+z0);%Calcul qui tient compte de la profondeur du cube (puis th de Thalès, cf. schéma dans le rapport)
 
-Nm= 50;                                       % Nombre de points utilisés pour générer l'objet 3D Si M n'est pas déjà une matrice. (arbitraire. Plus c'est élevé, plus l'image 3D est continue. influe seulement sur le temps de calcul).
+Nm= 50;                                       % Nombre de points utilisés pour générer l'objet 3D Si M n'est pas déjà une matrice. (arbitraire. Plus c'est élevé, plus l'image 3D est continue. influe seulement sur le temps de calcul). Mais il  y  a un seuil pour respecter Shannon.
 Lm=Lo;                                         %Largeur du cube contenant l'objet 3D Si M n'est pas déjà une matrice. (arbitraire. Plus c'est élevé, plus l'image 3D est continue. influe seulement sur le temps de calcul).
 pm= Lm/Nm;                               % Nombre de points utilisés pour générer l'objet 3D Si M n'est pas déjà une matrice. (le choix de pm donc de Lw est un peu arbitraire).
 paddm = floor(Nm*0.1);             % Espace entre les bord du cube de côté Nm contenant l'objet 3D et celui-ci, si M n'est pas déjà une matrice. (arbitraire, mais peut permettre de centrer et rétrécir l'objet en même temps sur l'image recostruite. A tester).
 
-%Si M est une forme particulière et non une matrice en entrée de la fonction, on fait une disjonction des cas pour choisir arbitrairement 
+%Si M est une forme particulière (string ntrée en paramètre) et non une matrice en entrée de la fonction, on fait une disjonction des cas pour choisir arbitrairement 
 %un padding qui donne un bon résultat.
 if isa(M,'char')
     switch M
@@ -67,7 +65,7 @@ if isa(M,'char')
        case 'carrevide'
             M=shape3D( 'carrevide', Nm, paddm, pm);
        case 'cercle'
-            M=shape3D( 'cercle', Nm, paddm, pm);
+            M=shape3D( 'cercle', Nm, paddm*3, pm);
         otherwise
             M=shape3D( M, N, paddm, pm);
      end
@@ -94,7 +92,10 @@ set(gca,'DataAspectRatio',[1,1,1]);
 WRP = ob2wrp(M, N, Lw, Lo, d, k); 
 %On fait la propragation de Fresnel sur la distance z0
 WRP=real(WRP);
+imwrite(WRP, 'outWRP.png');
 SLM = SFFT( WRP, Lo, lambda, z0);% Ou plutôt que z0, mettre la vraie valeur du polycopié.
+SLM= real(SLM);
+imwrite(SLM, 'outFresnel.png');
 
 
 fprintf('Largeur du SLM L=%f mm \n',L*10^3);

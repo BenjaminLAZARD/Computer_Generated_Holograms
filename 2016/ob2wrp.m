@@ -15,6 +15,9 @@ range=Lw/2;
 ipx=(-1*range):sampling:range;
 ipy=(-1*range):sampling:range;
 
+theta=1;
+tng = tand(theta);%tangeante avec l'argument en degré (inclinaison de l'onde de référence par rapport aux axes y et z (cf. schéma));
+
 avancement=0;
 fprintf('\n Avancement (pourcent) = \n 0 ');
 for xWRP = 1:Nw
@@ -31,17 +34,20 @@ for xWRP = 1:Nw
             yj = M(j, 2);
             zj = M(j, 3);
             Rwj = sqrt((ipx(xWRP)-xj)^2+(ipy(yWRP)-yj)^2+(zj+d)^2); %distance objet-point du WRP
-            WRP(xWRP, yWRP) = WRP(xWRP, yWRP) + (a0/Rwj)*exp(1i*k*Rwj); %amplitude complexe sur le WRP
+            WRP(xWRP, yWRP) = WRP(xWRP, yWRP) + (a0/Rwj)*exp(1i*k*Rwj);
+            a=WRP(xWRP, yWRP) + (a0/Rwj)*exp(1i*k*Rwj);%varibale tamporaire pour clarifeir la ligne suivante.
+            WRP(xWRP, yWRP) = sqrt  (abs(a+exp( 1i*k*tng*ipx(xWRP) + 1i*k*ipy(yWRP)))^2   - 1 - abs(a)^2); %amplitude complexe sur le WRP
         end
     end
 end
+
+%WRP = sqrt(abs(WRP+1).^2 -1-abs(WRP).^2);% On enlève l'ordre 0 (dans le cas où l'onde de référence est 1 i.e onde de référence de direction z)
 
 %matriceLCD=[zeros(290,1080);zeros(Nw,290),WRP,zeros(Nw,);zeros(290,1080)];
 WRP = [zeros((N-Nw)/2,Nw);WRP;zeros((N-Nw)/2,Nw)]; %ajout d'un padding pour atteindre 1080 x 1080
 WRP = [zeros(N,(N-Nw)/2),WRP,zeros(N,(N-Nw)/2)];
 
-figure(2), imagesc(real(WRP)); colormap(gray); 
-imwrite(real(WRP), 'outWRP.png');
+figure(2), imagesc(real(WRP)); colormap(gray);
 
 end
 

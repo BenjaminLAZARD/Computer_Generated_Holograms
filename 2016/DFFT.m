@@ -58,15 +58,12 @@ Uf=ifft2(result,Max,Max);
 
 
 %Affichage de l'image après propagation
-Intensite=real(Uf);%real ou abs ?(ça inverse les bandes d'ombres et de lumière selon que l'on prend l'un ou l'autre).
+Intensite=abs(Uf);%real ou abs ?(ça inverse les bandes d'ombres et de lumière selon que l'on prend l'un ou l'autre).
 figure(3), imagesc(Intensite), colormap(gray); 
 axis equal;
 axis tight;
 ylabel('pixels');
 xlabel(['Côté de l''image d''origine = ', num2str(Lo),'m']);
 title(['Champ des amplitudes de l''image diffractée après calcul par D-FFT sur la distance ',num2str(zo),'m']);
-
-imwrite(Intensite, 'outDFFT.png');
-
 end
 
