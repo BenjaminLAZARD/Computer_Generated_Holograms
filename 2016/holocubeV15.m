@@ -1,6 +1,6 @@
 function [ SLM ] = holocubeV15( M, rho)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%{ 
+%{
 %%  Ce programme reprend holocubeV14. Le but est de produire l'image qui sera affichée sur le capteur LCD qu'on va diffracter avec le laser (= onde de référence)
 %
 % * *M* est l'objet d'origine. On entre une matrice de taille (Nombredepointsdel'objet,3) Où les colonnes sont les coordonnées  des points (x,y,z), l'origine étant prise en haut à gauche de l'image (considérer "dans un coin" pour les images symétriques)
@@ -44,14 +44,14 @@ Lm=Lo;                                         %Largeur du cube contenant l'obje
 pm= Lm/Nm;                               % Nombre de points utilisés pour générer l'objet 3D Si M n'est pas déjà une matrice. (le choix de pm donc de Lw est un peu arbitraire).
 paddm = floor(Nm*0.1);             % Espace entre les bord du cube de côté Nm contenant l'objet 3D et celui-ci, si M n'est pas déjà une matrice. (arbitraire, mais peut permettre de centrer et rétrécir l'objet en même temps sur l'image recostruite. A tester).
 
-%Si M est une forme particulière (string ntrée en paramètre) et non une matrice en entrée de la fonction, on fait une disjonction des cas pour choisir arbitrairement 
+%Si M est une forme particulière (string ntrée en paramètre) et non une matrice en entrée de la fonction, on fait une disjonction des cas pour choisir arbitrairement
 %un padding qui donne un bon résultat.
 if isa(M,'char')
     switch M
-         case 'cube'
-             M=shape3D( 'cube', Nm, paddm, pm);
+        case 'cube'
+            M=shape3D( 'cube', Nm, paddm, pm);
         case 'tube'
-              M=shape3D( 'tube', Nm, paddm*2, pm);
+            M=shape3D( 'tube', Nm, paddm*2, pm);
         case 'sphere'
             M=shape3D( 'sphere', Nm, paddm*2, pm);
         case 'pt'
@@ -60,16 +60,20 @@ if isa(M,'char')
             M=shape3D( '2pts', Nm, 0, pm);
         case 'ptdd'
             M=shape3D( 'ptdd', Nm, 0, pm);
-       case 'carre'
+        case 'carre'
             M=shape3D( 'carre', Nm, paddm*3, pm);
-       case 'carrevide'
+        case 'carrevide'
             M=shape3D( 'carrevide', Nm, paddm, pm);
-       case 'cercle'
+        case 'cercle'
             M=shape3D( 'cercle', Nm, paddm*3, pm);
         otherwise
-            M=shape3D( M, N, paddm, pm);
-     end
- end
+            if strcmp(M(1:3),'img')
+                M=imgpts(M(4:size(M,2)), Nm, paddm, pm);
+            else
+                M=shape3D( M, N, paddm, pm);
+            end
+    end
+end
 
 if size(M,2) ~= 3 %Si la matrice M ne colle pas avec notre représentation de l'objet 3D à ce stade
     fprintf('Le 1er paramètre de la fonction ne correspond à aucun objet.\n');
@@ -89,7 +93,7 @@ set(gca,'DataAspectRatio',[1,1,1]);
 %Est-ce qu'on retire des points ? (car non visibles)
 
 %On récupère l'objet 2D qui contient la somme des ondes émises pour tous les points de l'objet à la distance d.
-WRP = ob2wrp(M, N, Lw, Lo, d, k); 
+WRP = ob2wrp(M, N, Lw, Lo, d, k);
 %On fait la propragation de Fresnel sur la distance z0
 WRP=real(WRP);
 imwrite(WRP, 'outWRP.png');

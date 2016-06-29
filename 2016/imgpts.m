@@ -16,9 +16,9 @@ for i=1:h %parcours des lignes de l'image
     waitbar(i/h,bar,sprintf('Calcul pour ligne = %d sur %d valeurs \n', i, h)) %actualisation de la barre de progression
     for j=1:w %parcours des colonnes de l'image
         if img(i,j)<seuil
-            pts(ligne,:)=pas_pixel*[i j 0]; %coordonnees reelles [x y z] de l'image
+            pts(ligne,:)=pas_pixel*[i j -10]; %coordonnees reelles [x y z] de l'image
             ligne=ligne+1;
-            pts(ligne,:)=pas_pixel*[i+5 j+5 5];
+            pts(ligne,:)=pas_pixel*[i+5 j+5 -14];
             ligne=ligne+1;
         end
     end
