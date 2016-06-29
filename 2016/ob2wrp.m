@@ -19,9 +19,8 @@ ipy=(-1*range):sampling:range; %coordonnees y des pixels en metres, centre sur 0
 
 h=waitbar(0, 'Début du calcul'); %creation d'une barre de progression
 
-theta = 0;
-tng = tand(theta);%tangeante avec l'argument en degré (inclinaison de l'onde de référence par rapport aux axes y et z (cf. schéma));
-
+theta=0.5;
+tng = tand(theta);%tangente avec l'argument en degré (inclinaison de l'onde de référence par rapport aux axes y et z (cf. schéma));
 
 for xWRP = 1:Nw
     waitbar(xWRP/Nw,h,sprintf('Calcul pour xWRP = %d sur %d valeurs \n', xWRP, Nw)) %actualisation de la barre de progression
@@ -33,9 +32,9 @@ for xWRP = 1:Nw
             zj = M(j, 3); %coordonnee z du point de l'objet
             Rwj = sqrt((ipx(xWRP)-xj)^2+(ipy(yWRP)-yj)^2+(zj+d)^2); %distance objet-point du WRP
             %WRP(xWRP, yWRP) = WRP(xWRP, yWRP) + (a0/Rwj)*exp(1i*k*Rwj);
-            a = a + (a0/Rwj)*exp(1i*k*Rwj);%varibale tamporaire pour clarifeir la ligne suivante.
+            a = a + (a0/Rwj)*exp(1i*k*Rwj); %on calcule l'onde objet de tous les points en (xWRP, YWRP)
         end
-        WRP(xWRP, yWRP) = sqrt  (abs(a+exp( 1i*k*tng*ipx(xWRP) + 1i*k*ipy(yWRP)))^2   - 1 - abs(a)^2); %amplitude complexe sur le WRP
+    WRP(xWRP, yWRP) = sqrt  (abs(a+exp( 1i*k*tng*ipx(xWRP) + 1i*k*ipy(yWRP)))^2   - 1 - abs(a)^2); %amplitude complexe sur le WRP : on supprime l'ordre 0 avec la formule |Ao+Ar|²-|Ao|²-|Ar|²
     end
 end
 
