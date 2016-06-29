@@ -28,7 +28,7 @@ zc=inf;                                            %distance entre le point sour
 zi=-1/(1/z0 + 1/zc - 1/zr);              %distance entre le plan du SLM et le plan de l'image reconstruite.                                      Ce calcul permet d'avoir une image nette dans le plan de reconstruction
 Gi= -zi/z0;                                       %Grossissement de l'image recosntruite(Gy dans le livre)
 
-d=z0/5;         %!!!!!!                        % Distance entre le 1er plan de l'objet3D M et le WRP.                                                       %%%%Comment le choisir ???
+d=z0;         %!!!!!!                        % Distance entre le 1er plan de l'objet3D M et le WRP.                                                       %%%%Comment le choisir ???
 N=closerp2(Lo^2/(lambda*z0));    % Largeur totale en pixels du plan WRP   en px. N doit être une puissance de 2 pour améliorer l'algorithme de la FFT.
 pas_px_wrp = Lo/N;                       % taille d'un pixel sur le plan WRP.
 
@@ -49,7 +49,7 @@ paddm = floor(Nm*0.1);             % Espace entre les bord du cube de côté Nm co
 if isa(M,'char')
     switch M
          case 'cube'
-             M=shape3D( 'cube', Nm, paddm, pm);
+             M=shape3D( 'cube', Nm, paddm*2, pm);
         case 'tube'
               M=shape3D( 'tube', Nm, paddm*2, pm);
         case 'sphere'
@@ -91,6 +91,19 @@ set(gca,'DataAspectRatio',[1,1,1]);
 %On récupère l'objet 2D qui contient la somme des ondes émises pour tous les points de l'objet à la distance d.
 WRP = ob2wrp(M, N, Lw, Lo, d, k); 
 %On fait la propragation de Fresnel sur la distance z0
+
+
+figure(5), imagesc(abs(WRP)), colormap(gray); 
+figure(6), imagesc(real(WRP)), colormap(gray); 
+phase = angle(WRP)+pi;
+for m=-540:1:539
+	phase(1:1080,m+541)=mod(phase(1:1080,m+541),2*pi);  %dephasage de la totalité de la figure;
+end;
+image = ceil(255/(2*pi)*phase);
+image = uint8(image);
+figure(7), imagesc(image), colormap(gray); 
+
+
 WRP=real(WRP);
 imwrite(WRP, 'outWRP.png');
 SLM = SFFT( WRP, Lo, lambda, z0);% Ou plutôt que z0, mettre la vraie valeur du polycopié.
