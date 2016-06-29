@@ -3,10 +3,8 @@ function [ SLM ] = holocubeV15( M, rho)
 %{ 
 %%  Ce programme reprend holocubeV14. Le but est de produire l'image qui sera affichée sur le capteur LCD qu'on va diffracter avec le laser (= onde de référence)
 %
-% * *M* est l'objet d'origine. On entre une matrice de taille (Nombredepointsdel'objet,3) Où les colonnes sont les coordonnées  des points (x,y,z), l'origine étant prise en haut à gauche de l'image (considérer "dans un coin" pour les images symétriques)
-On pourra aussi tester directement avec les arguments 'cube', 'tube', 'sphere', 'pt'.
-%* *z0* est la distance entre l'image et le SLM
-% * *Li* est la largeur de l'image obtenue en sortie.
+% * *M* est l'objet d'origine. On entre une matrice de taille (Nombredepointsdel'objet,3), où les colonnes sont les coordonnées  des points (x,y,z), l'origine étant prise en haut à gauche de l'image (considérer "dans un coin" pour les images symétriques)
+On pourra aussi tester directement avec les arguments 'cube', 'tube', 'sphere', 'pt', etc..
 %* *rho* est un paramètre >=1
 
 Toutes les unités sont celles du Système International ( en gros pas de mm).
@@ -28,9 +26,9 @@ zc=inf;                                            %distance entre le point sour
 zi=-1/(1/z0 + 1/zc - 1/zr);              %distance entre le plan du SLM et le plan de l'image reconstruite.                                      Ce calcul permet d'avoir une image nette dans le plan de reconstruction
 Gi= -zi/z0;                                       %Grossissement de l'image recosntruite(Gy dans le livre)
 
-d=z0;         %!!!!!!                        % Distance entre le 1er plan de l'objet3D M et le WRP.                                                       %%%%Comment le choisir ???
-N=closerp2(Lo^2/(lambda*z0));    % Largeur totale en pixels du plan WRP   en px. N doit être une puissance de 2 pour améliorer l'algorithme de la FFT.
-pas_px_wrp = Lo/N;                       % taille d'un pixel sur le plan WRP.
+d=z0/5;         %!!!!!!                        % Distance entre le 1er plan de l'objet3D M et le WRP.                                                       %%%%Comment le choisir ???
+N=closerp2(Lo^2/(lambda*z0));    % Largeur totale en pixels du plan WRP.  N doit être une puissance de 2 pour améliorer l'algorithme de la FFT.
+%pas_px_wrp = Lo/N;                       % taille d'un pixel sur le plan WRP.
 
 Li=rho*4*Gi*Lo;                            %Largeur du plan de l'image reconstruite (Equation 5.19 p.173 du livre anglais). L'image reconstruite en elle-même est plus petite.
 %Li=lambda*z0*w/L;%même résultat que ci-dessus. Quelles expression est la meilleure?
@@ -44,8 +42,8 @@ Lm=Lo;                                         %Largeur du cube contenant l'obje
 pm= Lm/Nm;                               % Nombre de points utilisés pour générer l'objet 3D Si M n'est pas déjà une matrice. (le choix de pm donc de Lw est un peu arbitraire).
 paddm = floor(Nm*0.1);             % Espace entre les bord du cube de côté Nm contenant l'objet 3D et celui-ci, si M n'est pas déjà une matrice. (arbitraire, mais peut permettre de centrer et rétrécir l'objet en même temps sur l'image recostruite. A tester).
 
-%Si M est une forme particulière (string ntrée en paramètre) et non une matrice en entrée de la fonction, on fait une disjonction des cas pour choisir arbitrairement 
-%un padding qui donne un bon résultat.
+%Si M est une forme particulière (string entrée en paramètre) et non une matrice en entrée de la fonction, 
+%on fait une disjonction des cas pour choisir arbitrairement un padding qui donne un bon résultat.
 if isa(M,'char')
     switch M
          case 'cube'
@@ -81,32 +79,22 @@ end
 M(:,1)=M(:,1)-Lm/2;
 M(:,2)=M(:,2)-Lm/2;
 
-figure(1),scatter3(M(:,1), M(:,2), M(:,3));% On trace la fonction à partir des coordonnées de M dans le plan 3D pour bien voir l'objet dont on fait l'hologramme.
-set(gca,'DataAspectRatio',[1,1,1]);
+% On trace la fonction à partir des coordonnées de M dans le plan 3D pour bien voir l'objet dont on fait l'hologramme.
+figure(1),scatter3(M(:,1), M(:,2), M(:,3));
+set(gca,'DataAspectRatio',[1,1,1]);% Pour que le tracé de la figure 1 soit dans un repère orhtonormé
 
-% A ce stade on soit l'objet M entré comme matrice, soit une forme de  taille Lo^2 (m) ou Nm^2 (px).
+% A ce stade, on a soit l'objet M entré comme matrice, soit une celle correspondant à la forme demandée de  taille Lo^2 (m) ou Nm^2 (px).
 
 %Est-ce qu'on retire des points ? (car non visibles)
 
 %On récupère l'objet 2D qui contient la somme des ondes émises pour tous les points de l'objet à la distance d.
 WRP = ob2wrp(M, N, Lw, Lo, d, k); 
-%On fait la propragation de Fresnel sur la distance z0
 
 
-figure(5), imagesc(abs(WRP)), colormap(gray); 
-figure(6), imagesc(real(WRP)), colormap(gray); 
-phase = angle(WRP)+pi;
-for m=-540:1:539
-	phase(1:1080,m+541)=mod(phase(1:1080,m+541),2*pi);  %dephasage de la totalité de la figure;
-end;
-image = ceil(255/(2*pi)*phase);
-image = uint8(image);
-figure(7), imagesc(image), colormap(gray); 
-
-
+%On fait la propagation de Fresnel sur la distance z0
 WRP=real(WRP);
 imwrite(WRP, 'outWRP.png');
-SLM = SFFT( WRP, Lo, lambda, z0);% Ou plutôt que z0, mettre la vraie valeur du polycopié.
+SLM = SFFT( WRP, Lo, lambda, z0);% On pourrait faire un switch case  en fonction de z pour utiliser soit la DFFT soit la SFFT
 SLM= real(SLM);
 imwrite(SLM, 'outFresnel.png');
 
@@ -117,19 +105,11 @@ fprintf('Distance entre le SLM et le  plan de l''image reconstruite=%f m \n',zi)
 fprintf('Taille minimale du plan de l''image reconstruite Li=%f cm \n',Li*10^2);
 fprintf('Taille utile en mm du plan du WRP Lw=%f mm \n',Lw*10^3);
 fprintf('Taille totale en pixels du plan du WRP N=%d pixels\n',N);
+
 Nw= floor((Lw/Lo)*N/2)*2; %Taille utile en pixels (N inclut les pixels du 0-padding, contrairement à Nw)
 fprintf('Taille utile du WRP Nw=%d px \n', Nw);
 
-%for m 1:1:5
-%    SLM=DFFT(WRP, Lo, lambda, z0);
-%end
 
-%Faire un switch case  en fonction de z pour utiliser soit la DFFT soit la SFFT
-
-
-%Création du LUT pour les calculs+ (threads ? GPU?)
-%Retirer mathématiquement l'ordre 0
-%Fenêtre de choix de l'ordre 1 dans le domaine fréquentiel
-
+%Création du LUT pour les calculs + threads +  GPU?
 end
 

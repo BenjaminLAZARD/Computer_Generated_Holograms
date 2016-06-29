@@ -1,5 +1,5 @@
 function [ Uf ] = SFFT( Img, Lo, lambda, zo)
-%S-FFT (utilisé quand la distance de diffraction est grande). Cet algorithme donne une image reconstruite qui ne prend pas tous l'écran.
+%S-FFT (utilisé quand la distance de diffraction est grande). Cet algorithme donne une image reconstruite qui ne prend pas tout l'écran.
 %* *Img* est la matrice 2D qui correspond à l'image. Les coefs de la matrice
 %correspondent à l'intensité lumineuse sur  1 octet.(pasde couleur !)
 %* *Lo* est la taille désirée de Img en m (indépendamment du nb de pixels)
@@ -7,7 +7,7 @@ function [ Uf ] = SFFT( Img, Lo, lambda, zo)
 % Toutes les unités sont en metres (U.S.I)
 k=2*pi/lambda; % vecteur d'onde
 
-Img=imread('outWRP.png');%test car il semble que passer l'image en argument n'est pas terrible.
+Img=imread('outWRP.png');% il semble que passer l'image en argument n'est pas terrible.
 
 % On fait un 0-padding de l'image liée à la matrice Img. Le but est juste d'en faire un carré. 
 [M,N] = size(Img);
@@ -28,7 +28,7 @@ Img_padd = [Z1,[Z2;Img;Z2],Z1]; %[;] fait une concaténation sur les lignes. [,] 
 zmin= Lo^2/(Max*lambda);
 fprintf('La valeur de z0 doit être supérieure à %f \n', zmin);
 
-Uo = double(Img_padd);%Uo = Champ des amplitudes complexes liées à Img_padd, la précision de chaque coef passe de 1o à un double
+Uo = double(Img_padd);%Uo = Champ des amplitudes complexes liées à Img_padd, la précision de chaque coef passe de 1 octet à 2 octets
 
 %affichage de l'image avec padding
 %figure(2), imagesc(real(Img_padd)), colormap(gray); 
