@@ -5,9 +5,11 @@ function [ object ] = shape3D( shape, N, padding, pas_pixel)
 %* *N* l'objet est contenu dans un cube de taille N^3 pixels. Il y a souvent moins de points. N doit être pair.
 %* *padding* décrit le nombre de pixels laissés libres au bord du cube N^3 pour que la shape soit inscrit dedans avec des "marges"
 %* *pas_pixel* influe sur la fenêtre dans laquelle on évalue la fonction.
+%* *rot*=['axis','phi'] où axis est dans {'x','y','z'} et phi est un angle en radian. Cela permet de changer l'angle de vue de la figure.
 
 % L'origine des figures est toujours dans un coin du cube de taille N^3. Les coordonnées sont donc toujours positives dans les figures données ici.
 %Attention on devra peut-être modifier le fenêtrage des fonctions pour obtenir des objets sans "trous" (exemple de la sphère).
+rot=['x','0'];
 
 if mod(N,2)~=0;
     fprintf('La valeur du paramètre N dans la fonction shape3D doit être paire ! \n')
@@ -171,6 +173,25 @@ switch shape %le switch en matlab ne marche pas comme le switch en C. Notamment 
         end
         object = object(1:m-1,:);%On avait alloué trop de mémoire avec la matrice Zéros au début. On retire les points non nécessaires.
 end
+
+% Rotation
+axis = rot(:,1);
+phi = str2double(rot(:,2));
+switch axis
+    case 'x'
+        omega=[[1 0 0];[0 cos(phi) -sin(phi)];[0 sin(phi) cos(phi)]];
+    case 'y'
+        omega=[[cos(phi) 0 sin(phi)];[0 1 0];[-sin(phi) 0 cos(phi)]];
+    case 'z'
+        omega=[[cos(phi) -sin(phi) 0];[sin(phi) cos(phi) 0];[0 0 1]];
+    otherwise
+        omega=ones(3,3);
+        fprintf('à cause d''un problème dans les paramètres de la rotaion dans shape3D, on a éxécuté aucune rotation');
+end
+object = object*transpose(omega); %Il s'agit bien d'une multiplication matricielle pour la rotation. la notation"A.'" permet de faire la transposée.
+%Remettre les coordonées en positif.
+
+
 %figure(4),surf(X,Y,Z);
 figure(1),scatter3(object(:,1), object(:,2), object(:,3));% On trace la fonction à partir des coordonnées ainsi trouvées.
 set(gca,'DataAspectRatio',[1,1,1]);% A commenter lorsqu'on veut visualiser par exemple 'X.*Y' car alors l'axe en Z ne doit pas être à la même échelle que les autres axes pour avoir une vue intéressante.

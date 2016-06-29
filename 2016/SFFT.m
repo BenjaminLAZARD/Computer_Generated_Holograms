@@ -31,7 +31,7 @@ fprintf('La valeur de z0 doit être supérieure à %f \n', zmin);
 Uo = double(Img_padd);%Uo = Champ des amplitudes complexes liées à Img_padd, la précision de chaque coef passe de 1o à un double
 
 %affichage de l'image avec padding
-figure(2), imagesc(real(Img_padd)), colormap(gray); 
+%figure(2), imagesc(real(Img_padd)), colormap(gray); 
 axis equal;
 axis tight;
 ylabel('pixels');
